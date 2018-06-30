@@ -3,9 +3,10 @@ package pw.bencole.benchat.models;
 import java.util.Date;
 
 /**
+ * Encapsulates a message either sent to or from the user.
+ *
  * @author Ben Cole
  */
-
 public class Message {
 
     private String mContent;
