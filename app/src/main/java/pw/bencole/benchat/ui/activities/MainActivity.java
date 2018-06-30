@@ -4,10 +4,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.ui.fragments.AllChats;
-import pw.bencole.benchat.ui.fragments.dummy.DummyContent;
+import pw.bencole.benchat.models.Conversation;
+import pw.bencole.benchat.ui.fragments.ConversationsOverviewFragment;
 
-public class MainActivity extends AppCompatActivity implements AllChats.OnListFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ConversationsOverviewFragment.OnConversationSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity implements AllChats.OnListFr
     }
 
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+    public void onConversationSelected(Conversation conversation) {
 
     }
 }

@@ -17,4 +17,12 @@ public class Conversation {
         mOtherPerson = otherPerson;
         mMessages = messages;
     }
+
+    public String getFirstMessage() {
+        return "<Sender>: <first message>";
+    }
+
+    public User getOtherPerson() {
+        return mOtherPerson;
+    }
 }

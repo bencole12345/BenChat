@@ -8,4 +8,12 @@ package pw.bencole.benchat.models;
 public class User {
 
     private String mUsername;
+
+    public User(String username) {
+        mUsername = username;
+    }
+
+    public String getUsername() {
+        return mUsername;
+    }
 }

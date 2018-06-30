@@ -7,7 +7,7 @@
     tools:context="pw.bencole.benchat.ui.activities.MainActivity">
 
     <fragment
-        android:name="pw.bencole.benchat.ui.fragments.AllChats"
+        android:name="pw.bencole.benchat.ui.fragments.ConversationsOverviewFragment"
         android:id="@+id/allChatsFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
