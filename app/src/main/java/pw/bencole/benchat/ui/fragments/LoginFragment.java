@@ -62,8 +62,8 @@ public class LoginFragment extends Fragment {
     private void attemptLogin() {
         // TODO: Actually log in
 
-        String username = (String) mUsernameField.getText();
-        String password = (String) mPasswordField.getText();
+        String username = mUsernameField.getText().toString();
+        String password = mPasswordField.getText().toString();
 
         mListener.onLoginComplete(null);
     }

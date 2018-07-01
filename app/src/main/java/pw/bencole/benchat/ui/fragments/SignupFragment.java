@@ -80,9 +80,9 @@ public class SignupFragment extends Fragment {
     private void attemptSignup() {
         // TODO: Actually sign up
 
-        String username = (String) mUsernameField.getText();
-        String password = (String) mPasswordField.getText();
-        String passwordRetyped = (String) mPasswordReentryField.getText();
+        String username = mUsernameField.getText().toString();
+        String password = mPasswordField.getText().toString();
+        String passwordRetyped = mPasswordReentryField.getText().toString();
 
         if (!password.equals(passwordRetyped)) {
             showPasswordMismatch();
