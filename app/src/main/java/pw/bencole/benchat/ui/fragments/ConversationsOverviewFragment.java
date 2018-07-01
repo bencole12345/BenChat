@@ -23,11 +23,12 @@ import pw.bencole.benchat.ui.adapters.ConversationArrayAdapter;
 public class ConversationsOverviewFragment extends Fragment {
 
     private ListView mConversationsList;
-    private OnConversationSelectedListener mListener;
     private ArrayList<Conversation> mConversations;
 
+    private OnConversationSelectedListener mListener;
+
     public interface OnConversationSelectedListener {
-        public void onConversationSelected(Conversation conversation);
+        void onConversationSelected(Conversation conversation);
     }
 
     // Handles creating a View object to be displayed in the Activity
