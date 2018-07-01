@@ -30,7 +30,15 @@ public class LoginFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        // TODO: assign the findViewById stuff
+        mUsernameField = view.findViewById(R.id.usernameTextView);
+        mPasswordField = view.findViewById(R.id.passwordTextView);
+        mLoginButton = view.findViewById(R.id.loginButton);
+        mLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptLogin();
+            }
+        });
 
         return view;
     }
@@ -49,5 +57,10 @@ public class LoginFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    private void attemptLogin() {
+        // TODO: Actually log in
+        mListener.onLoginComplete(null);
     }
 }

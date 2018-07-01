@@ -7,11 +7,18 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.LoggedInUser;
 
 public class SignupFragment extends Fragment {
+
+    private TextView mUsernameField;
+    private TextView mPasswordField;
+    private TextView mPasswordReentryField;
+    private Button mSignupButton;
 
     private SignupFragmentListener mListener;
 
@@ -25,7 +32,18 @@ public class SignupFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_signup, container, false);
+        View view = inflater.inflate(R.layout.fragment_signup, container, false);
+        mUsernameField = view.findViewById(R.id.usernameTextView);
+        mPasswordField = view.findViewById(R.id.passwordTextView);
+        mPasswordReentryField = view.findViewById(R.id.repeatPasswordTextView);
+        mSignupButton = view.findViewById(R.id.signupButton);
+        mSignupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptSignup();
+            }
+        });
+        return view;
     }
 
     @Override
@@ -43,6 +61,11 @@ public class SignupFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    private void attemptSignup() {
+        // TODO: Actually sign up
+        mListener.onSignupCompletion(null);
     }
 
 }
