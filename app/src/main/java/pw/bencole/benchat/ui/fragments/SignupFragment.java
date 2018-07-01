@@ -63,8 +63,32 @@ public class SignupFragment extends Fragment {
         mListener = null;
     }
 
+    /**
+     * Shows to the user that the passwords they have entered do not match.
+     */
+    private void showPasswordMismatch() {
+        // TODO: Somehow show the user that the passwords don't match
+        mPasswordReentryField.setError("Passwords don't match!");
+    }
+
+    /**
+     * Attempts to connect to the server and sign up.
+     *
+     * If this succeeds, then the Activity will be notified and subsequently terminated. If the user
+     * has entered invalid values or the connection fails then they will be notified.
+     */
     private void attemptSignup() {
         // TODO: Actually sign up
+
+        String username = (String) mUsernameField.getText();
+        String password = (String) mPasswordField.getText();
+        String passwordRetyped = (String) mPasswordReentryField.getText();
+
+        if (!password.equals(passwordRetyped)) {
+            showPasswordMismatch();
+            return;
+        }
+
         mListener.onSignupCompletion(null);
     }
 
