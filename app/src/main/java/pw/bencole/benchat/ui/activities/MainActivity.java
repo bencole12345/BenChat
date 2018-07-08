@@ -1,19 +1,21 @@
 package pw.bencole.benchat.ui.activities;
 
 import android.content.Intent;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.Conversation;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.User;
 import pw.bencole.benchat.ui.fragments.ConversationsOverviewFragment;
+import pw.bencole.benchat.util.LoginManager;
 
 public class MainActivity extends AppCompatActivity implements ConversationsOverviewFragment.OnConversationSelectedListener {
-
-    static final int LOGIN_REQUEST = 1;
 
     private LoggedInUser mUser;
 
@@ -21,31 +23,14 @@ public class MainActivity extends AppCompatActivity implements ConversationsOver
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mUser = (LoggedInUser) getIntent().getExtras().get("user");
-
         setContentView(R.layout.activity_main);
-
-//        ensureLoggedIn();
-    }
-
-    private void ensureLoggedIn() {
-        if (mUser == null) {
-            login();
-        }
-    }
-
-    private void login() {
-        Intent loginIntent = new Intent(this, LoginActivity.class);
-        startActivityForResult(loginIntent, LOGIN_REQUEST);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case LOGIN_REQUEST:
-                mUser = (LoggedInUser) data.getExtras().get("user");
-        }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.conversations_overview_menu, menu);
+        return true;
     }
 
     @Override
@@ -55,6 +40,26 @@ public class MainActivity extends AppCompatActivity implements ConversationsOver
         conversationIntent.putExtra(ConversationActivity.CONVERSATION_THIS_USER, mUser);
         conversationIntent.putExtra(ConversationActivity.CONVERSATION_OTHER_USER, conversation.getOtherPerson());
         startActivity(conversationIntent);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.signOutMenuItem:
+                signOut();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Signs the user out, updating the persistent store and returning to LoginActivity.
+     */
+    private void signOut() {
+        LoginManager.logout(this);
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        startActivity(loginIntent);
+        finish();
     }
 
     public LoggedInUser getUser() {

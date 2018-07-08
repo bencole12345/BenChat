@@ -67,4 +67,17 @@ public class LoginManager {
         editor.putString(PASSWORD, user.getPassword());
         editor.apply();
     }
+
+    /**
+     * Deletes the logged in user from the permanent store.
+     * @param context The context from which the method was called
+     */
+    public static void logout(Context context) {
+        SharedPreferences preferences = getSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(IS_LOGGED_IN, false);
+        editor.putString(USERNAME, null);
+        editor.putString(PASSWORD, null);
+        editor.apply();
+    }
 }
