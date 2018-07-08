@@ -1,21 +1,17 @@
 package pw.bencole.benchat.models;
 
-import pw.bencole.benchat.network.Session;
 
 /**
- * Pairs a User object with a Session object.
+ * Adds a password to a User.
+ *
+ * This class should be used to represent the user that is actually using the app. The password
+ * needs to be known in order to send requests to the API.
  *
  * @author Ben Cole
  */
 public class LoggedInUser extends User {
 
-//    private Session mSession;
     private String mPassword;
-
-//    public LoggedInUser(String username, Session session) {
-//        super(username);
-//        mSession = session;
-//    }
 
     public LoggedInUser(String username, String password) {
         super(username);
@@ -26,12 +22,4 @@ public class LoggedInUser extends User {
         return mPassword;
     }
 
-    /**
-     * Returns the Session object associated with this instance.
-     *
-     * @return the Session object associated with this instance
-     */
-//    public Session getSession() {
-//        return mSession;
-//    }
 }
