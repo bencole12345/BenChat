@@ -18,14 +18,14 @@ import pw.bencole.benchat.models.Conversation;
  *
  * @author Ben Cole
  */
-public class ConversationArrayAdapter extends ArrayAdapter<Conversation> {
+public class ConversationPreviewAdapter extends ArrayAdapter<Conversation> {
 
     private static class ViewHolder {
         TextView contactName;
         TextView messagePreview;
     }
 
-    public ConversationArrayAdapter(@NonNull Context context, int resource, @NonNull List<Conversation> objects) {
+    public ConversationPreviewAdapter(@NonNull Context context, int resource, @NonNull List<Conversation> objects) {
         super(context, resource, objects);
     }
 

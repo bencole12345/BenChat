@@ -17,7 +17,7 @@ import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.Message;
 import pw.bencole.benchat.models.User;
 import pw.bencole.benchat.network.NetworkHelper;
-import pw.bencole.benchat.ui.adapters.ConversationArrayAdapter;
+import pw.bencole.benchat.ui.adapters.ConversationPreviewAdapter;
 
 /**
  * @author Ben Cole
@@ -42,7 +42,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
         mConversationsList = view.findViewById(R.id.conversationsOverviewListView);
         mConversationsList.setOnItemClickListener(this);
 
-        ConversationArrayAdapter adapter = new ConversationArrayAdapter(getContext(), R.layout.listelement_conversation_overview, getConversations());
+        ConversationPreviewAdapter adapter = new ConversationPreviewAdapter(getContext(), R.layout.listelement_conversation_overview, getConversations());
         mConversationsList.setAdapter(adapter);
 
         return view;
