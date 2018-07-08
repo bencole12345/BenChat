@@ -25,6 +25,11 @@ public class NetworkHelper {
         messages.add(new Message(
                 "Good thanks!", thisUser, otherUser, 2)
         );
+        messages.add(new Message(
+                "We should add more messages so that the chat is a bit longer.", otherUser, thisUser, 3
+        ));
+        messages.add(new Message("That is a brilliant idea!", thisUser, otherUser, 4));
+        messages.add(new Message("It sure is!", otherUser, thisUser, 5));
 
         return messages;
     }
