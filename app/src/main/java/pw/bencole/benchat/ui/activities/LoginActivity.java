@@ -10,14 +10,14 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.ui.fragments.LoginFragment;
 import pw.bencole.benchat.ui.fragments.SignupFragment;
+import pw.bencole.benchat.util.LoginManager;
 
+// TODO: Tidy up this class! Add documentation and stuff and stop using deprecated method calls
 public class LoginActivity extends AppCompatActivity
         implements LoginFragment.LoginFragmentListener, SignupFragment.SignupFragmentListener {
 
@@ -29,7 +29,7 @@ public class LoginActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        setTitle("Welcome");
+        setTitle("Welcome"); // TODO: Set this in the manifest instead
 
         mPager = (ViewPager) findViewById(R.id.loginViewPager);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
@@ -91,20 +91,32 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Called by the LoginFragment when a user successfully logs in.
+     * @param user The user that was just successfully logged in
+     */
     public void onLoginComplete(LoggedInUser user) {
-        handleReturningUser(user);
-        finish();
+        login(user);
     }
 
-    @Override
+    /**
+     * Called by the SignupFragment when a new user is successfully signed up and logged in.
+     * @param user The user that was just successfully signed up and logged in
+     */
     public void onSignupCompletion(LoggedInUser user) {
-        handleReturningUser(user);
-        finish();
+        login(user);
     }
 
-    private void handleReturningUser(LoggedInUser user) {
+    /**
+     * Completes the login by setting the logged in user persistently and starting a MainActivity
+     * instance with this user.
+     * @param user The user that was just logged in (and potentially signed up)
+     */
+    private void login(LoggedInUser user) {
+        LoginManager.setLoggedInUser(user, this);
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("user", user);
         startActivity(intent);
+        finish();
     }
 }

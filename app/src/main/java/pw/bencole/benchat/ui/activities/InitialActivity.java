@@ -5,8 +5,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.LoggedInUser;
+import pw.bencole.benchat.util.LoginManager;
 
+/**
+ * Acts as an initial activity to be used when the app is first loaded. It will never be seen by
+ * the user. It determines whether the user has already logged in previously. If they have not,
+ * a LoginActivity will be shown. If they have, then the details used previously will be used again
+ * and the login screen bypassed, with a MainActivity instance launched instead.
+ *
+ * @author Ben Cole
+ */
 public class InitialActivity extends AppCompatActivity {
 
     @Override
@@ -15,9 +23,9 @@ public class InitialActivity extends AppCompatActivity {
 
         Intent activityIntent;
 
-        if (getIsLoggedIn()) {
+        if (LoginManager.getIsLoggedIn(this)) {
             activityIntent = new Intent(this, MainActivity.class);
-            activityIntent.putExtra("user", getUser());
+            activityIntent.putExtra("user", LoginManager.getLoggedInUser(this));
         } else {
             activityIntent = new Intent(this, LoginActivity.class);
         }
@@ -26,14 +34,5 @@ public class InitialActivity extends AppCompatActivity {
         finish();
     }
 
-    private boolean getIsLoggedIn() {
-        // TODO: Use a local file to store login details
-        return false;
-    }
 
-    private LoggedInUser getUser() {
-        // TODO: Retrieve the previously logged in user from a local filestore
-        LoggedInUser user = new LoggedInUser("ben", null);
-        return user;
-    }
 }
