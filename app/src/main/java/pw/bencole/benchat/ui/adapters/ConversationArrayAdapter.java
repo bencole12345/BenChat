@@ -46,7 +46,7 @@ public class ConversationArrayAdapter extends ArrayAdapter<Conversation> {
         viewHolder.contactName = result.findViewById(R.id.contactNameTextView);
         viewHolder.messagePreview = result.findViewById(R.id.messagePreviewTextView);
         viewHolder.contactName.setText(conversation.getOtherPerson().getUsername());
-        viewHolder.messagePreview.setText(conversation.getFirstMessage());
+        viewHolder.messagePreview.setText(conversation.getMostRecentMessagePreview());
         return result;
     }
 }
