@@ -105,7 +105,6 @@ public class LoginActivity extends AppCompatActivity
     private void handleReturningUser(LoggedInUser user) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("user", user);
-//        setResult(MainActivity.LOGIN_REQUEST, intent);
         startActivity(intent);
     }
 }

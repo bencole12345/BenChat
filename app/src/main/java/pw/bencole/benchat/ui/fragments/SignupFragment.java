@@ -67,7 +67,6 @@ public class SignupFragment extends Fragment {
      * Shows to the user that the passwords they have entered do not match.
      */
     private void showPasswordMismatch() {
-        // TODO: Somehow show the user that the passwords don't match
         mPasswordReentryField.setError("Passwords don't match!");
     }
 
@@ -89,7 +88,9 @@ public class SignupFragment extends Fragment {
             return;
         }
 
-        mListener.onSignupCompletion(null);
+        LoggedInUser user = new LoggedInUser(username, password);
+
+        mListener.onSignupCompletion(user);
     }
 
 }
