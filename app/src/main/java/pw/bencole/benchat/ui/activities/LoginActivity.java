@@ -1,5 +1,6 @@
 package pw.bencole.benchat.ui.activities;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -91,13 +92,20 @@ public class LoginActivity extends AppCompatActivity
     }
 
     public void onLoginComplete(LoggedInUser user) {
-        // TODO: Pass this to MainActivity
+        handleReturningUser(user);
         finish();
     }
 
     @Override
     public void onSignupCompletion(LoggedInUser user) {
-        // TODO: Pass this to MainActivity
+        handleReturningUser(user);
         finish();
+    }
+
+    private void handleReturningUser(LoggedInUser user) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("user", user);
+//        setResult(MainActivity.LOGIN_REQUEST, intent);
+        startActivity(intent);
     }
 }

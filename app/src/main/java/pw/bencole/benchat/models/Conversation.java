@@ -1,6 +1,7 @@
 package pw.bencole.benchat.models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Encapsulates a sequence of messages exchanged between two people. One of these people is assumed
@@ -18,11 +19,15 @@ public class Conversation {
         mMessages = messages;
     }
 
-    public String getFirstMessage() {
-        return "<Sender>: <first message>";
-    }
-
     public User getOtherPerson() {
         return mOtherPerson;
+    }
+
+    public List<Message> getMessages() {
+        return mMessages;
+    }
+
+    public String getFirstMessage() {
+        return "<Sender>: <first message>";
     }
 }

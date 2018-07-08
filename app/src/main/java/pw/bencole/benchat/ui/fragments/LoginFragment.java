@@ -65,6 +65,9 @@ public class LoginFragment extends Fragment {
         String username = mUsernameField.getText().toString();
         String password = mPasswordField.getText().toString();
 
-        mListener.onLoginComplete(null);
+        // Connect to server and generate a login
+        LoggedInUser user = new LoggedInUser(username, null);
+
+        mListener.onLoginComplete(user);
     }
 }

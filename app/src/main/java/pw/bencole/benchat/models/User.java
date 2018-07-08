@@ -1,11 +1,15 @@
 package pw.bencole.benchat.models;
 
+import android.os.Bundle;
+
+import java.io.Serializable;
+
 /**
  * Encapsulates a user of the app.
  *
  * @author Ben Cole
  */
-public class User {
+public class User implements Serializable {
 
     private String mUsername;
 

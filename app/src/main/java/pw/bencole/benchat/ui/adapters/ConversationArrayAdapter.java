@@ -38,7 +38,7 @@ public class ConversationArrayAdapter extends ArrayAdapter<Conversation> {
 
         if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            result = inflater.inflate(R.layout.listviewelement_conversation_overview, parent, false);
+            result = inflater.inflate(R.layout.listelement_conversation_overview, parent, false);
         } else {
             result = convertView;
         }

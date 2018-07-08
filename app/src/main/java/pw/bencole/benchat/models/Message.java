@@ -11,11 +11,14 @@ public class Message {
 
     private String mContent;
     private User mSender;
-    private Date mTimestamp;
+    private long mTimestamp;
+    private User mRecipient;
 
-    public Message(String content, User sender) {
+    public Message(String content, User sender, User recipient, long timestamp) {
         mContent = content;
         mSender = sender;
+        mRecipient = recipient;
+        mTimestamp = timestamp;
     }
 
     public String getContent() {
@@ -26,7 +29,7 @@ public class Message {
         return mSender;
     }
 
-    public Date getTimestamp() {
+    public long getTimestamp() {
         return mTimestamp;
     }
 }
