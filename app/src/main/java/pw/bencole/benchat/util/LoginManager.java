@@ -17,6 +17,7 @@ public class LoginManager {
     public static final String LOGIN_PREFERENCES = "pw.bencole.benchat.LOGIN_PREFERENCES";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
+    public static final String USER_ID = "userId";
     public static final String IS_LOGGED_IN = "is_logged_in";
 
     private static SharedPreferences getSharedPreferences(Context context) {
@@ -33,7 +34,8 @@ public class LoginManager {
         SharedPreferences preferences = getSharedPreferences(context);
         return preferences.getBoolean(IS_LOGGED_IN, false)
                 && preferences.contains(USERNAME)
-                && preferences.contains(PASSWORD);
+                && preferences.contains(PASSWORD)
+                && preferences.contains(USER_ID);
     }
 
     /**
@@ -45,12 +47,13 @@ public class LoginManager {
      */
     public static LoggedInUser getLoggedInUser(Context context) {
         SharedPreferences preferences = getSharedPreferences(context);
-        if (!getIsLoggedIn(context)) {
+        String username = preferences.getString(USERNAME, null);
+        String password = preferences.getString(PASSWORD, null);
+        String userId = preferences.getString(USER_ID, null);
+        if (!getIsLoggedIn(context) || username == null || password == null || userId == null) {
             return null;
         } else {
-            String username = preferences.getString(USERNAME, null);
-            String password = preferences.getString(PASSWORD, null);
-            return new LoggedInUser(username, password);
+            return new LoggedInUser(username, password, userId);
         }
     }
 
@@ -65,6 +68,7 @@ public class LoginManager {
         editor.putBoolean(IS_LOGGED_IN, true);
         editor.putString(USERNAME, user.getUsername());
         editor.putString(PASSWORD, user.getPassword());
+        editor.putString(USER_ID, user.getId());
         editor.apply();
     }
 
@@ -78,6 +82,7 @@ public class LoginManager {
         editor.putBoolean(IS_LOGGED_IN, false);
         editor.putString(USERNAME, null);
         editor.putString(PASSWORD, null);
+        editor.putString(USER_ID, null);
         editor.apply();
     }
 }

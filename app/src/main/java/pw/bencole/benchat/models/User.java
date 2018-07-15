@@ -11,12 +11,18 @@ import java.io.Serializable;
 public class User implements Serializable {
 
     private String mUsername;
+    private String mUserId;
 
-    public User(String username) {
+    public User(String username, String userId) {
         mUsername = username;
+        mUserId = userId;
     }
 
     public String getUsername() {
         return mUsername;
+    }
+
+    public String getId() {
+        return mUserId;
     }
 }

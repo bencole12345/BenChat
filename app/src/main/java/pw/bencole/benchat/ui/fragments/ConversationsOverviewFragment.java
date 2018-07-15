@@ -67,9 +67,10 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
         mListener = null;
     }
     private ArrayList<Conversation> getConversations() {
+        // TODO: Actually get conversations!
         ArrayList<Conversation> conversations = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
-            User user = new User("User " + i);
+            User user = new User("User " + i, null);
             ArrayList<Message> messages = NetworkHelper.getAllMessagesBetween(mListener.getUser(), user);
 //            messages.add(new Message("First message of conversation " + i, user, user));
             Conversation conversation = new Conversation(user, messages);

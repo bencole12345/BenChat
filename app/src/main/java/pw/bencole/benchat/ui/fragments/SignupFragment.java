@@ -88,7 +88,7 @@ public class SignupFragment extends Fragment {
             return;
         }
 
-        LoggedInUser user = new LoggedInUser(username, password);
+        LoggedInUser user = new LoggedInUser(username, password, "");
 
         mListener.onSignupCompletion(user);
     }
