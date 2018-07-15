@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="signup_url">http://benchat.bencole.pw/auth/register</string>
+    <string name="login_url">http://benchat.bencole.pw/auth/login</string>
+    <string name="send_message_url">http://benchat.bencole.pw/messages/send</string>
+    <string name="get_messages_url">http://benchat.bencole.pw/messages/view</string>
+    <string name="create_conversation_url">http://benchat.bencole.pw/conversations/new</string>
+    <string name="get_conversations_url">http://benchat.bencole.pw/conversations/all</string>
+</resources>
