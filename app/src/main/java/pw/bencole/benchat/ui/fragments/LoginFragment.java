@@ -1,6 +1,7 @@
 package pw.bencole.benchat.ui.fragments;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -8,9 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.LoggedInUser;
+import pw.bencole.benchat.network.LoginAttempt;
+import pw.bencole.benchat.network.NetworkHelper;
+
+import static pw.bencole.benchat.network.NetworkHelper.login;
 
 
 public class LoginFragment extends Fragment {
@@ -65,9 +71,30 @@ public class LoginFragment extends Fragment {
         String username = mUsernameField.getText().toString();
         String password = mPasswordField.getText().toString();
 
-        // Connect to server and generate a login
-        LoggedInUser user = new LoggedInUser(username, password, "");
+        new LoginTask().execute(username, password);
+    }
 
-        mListener.onLoginComplete(user);
+    private void handleLoginResponse(LoginAttempt loginAttempt) {
+        // TODO: Populate this method with validation logic
+        if (loginAttempt.getWasSuccessful()) {
+            mListener.onLoginComplete(loginAttempt.getUser());
+        } else {
+            Toast.makeText(getContext(), "Failed to log in", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class LoginTask extends AsyncTask<String, Void, LoginAttempt> {
+
+        @Override
+        protected LoginAttempt doInBackground(String... strings) {
+            return login(strings[0], strings[1], getContext());
+        }
+
+        @Override
+        protected void onPostExecute(LoginAttempt loginAttempt) {
+            super.onPostExecute(loginAttempt);
+            handleLoginResponse(loginAttempt);
+        }
+
     }
 }
