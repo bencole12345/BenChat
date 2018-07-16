@@ -16,9 +16,13 @@ import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.network.LoginAttempt;
 import pw.bencole.benchat.network.NetworkHelper;
 
-import static pw.bencole.benchat.network.NetworkHelper.login;
 
-
+/**
+ * A Fragment containing all widgets and logic required to log the user in, or handle displaying
+ * error messages if the login fails.
+ *
+ * @author Ben Cole
+ */
 public class LoginFragment extends Fragment {
 
     private TextView mUsernameField;
@@ -27,15 +31,17 @@ public class LoginFragment extends Fragment {
 
     private LoginFragmentListener mListener;
 
+    /**
+     * Ensures that the Activity containing this Fragment includes a necessary callback method
+     * to be used once a successful login has been made.
+     */
     public interface LoginFragmentListener {
         void onLoginComplete(LoggedInUser user);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_login, container, false);
-
         mUsernameField = view.findViewById(R.id.usernameTextView);
         mPasswordField = view.findViewById(R.id.passwordTextView);
         mLoginButton = view.findViewById(R.id.loginButton);
@@ -45,7 +51,6 @@ public class LoginFragment extends Fragment {
                 attemptLogin();
             }
         });
-
         return view;
     }
 
@@ -65,29 +70,67 @@ public class LoginFragment extends Fragment {
         mListener = null;
     }
 
+    /**
+     * Attempts to log the user in.
+     *
+     * This method loads the username and password that the user entered and begins an asynchronous
+     * LoginTask to send them to the server. It is called when the login button is clicked.
+     */
     private void attemptLogin() {
-        // TODO: Actually log in
-
         String username = mUsernameField.getText().toString();
         String password = mPasswordField.getText().toString();
-
         new LoginTask().execute(username, password);
     }
 
+    /**
+     * Handles the result of an attempted login.
+     *
+     * If the login was successful, the LoggedInUser is passed to the callback method of the
+     * containing activity. If the login details are incorrect, or if the connection fails, the
+     * user is informed via a relevant error message.
+     *
+     * @param loginAttempt A LoginAttempt object containing the result from an attempted login.
+     */
     private void handleLoginResponse(LoginAttempt loginAttempt) {
-        // TODO: Populate this method with validation logic
         if (loginAttempt.getWasSuccessful()) {
             mListener.onLoginComplete(loginAttempt.getUser());
         } else {
-            Toast.makeText(getContext(), "Failed to log in", Toast.LENGTH_SHORT).show();
+            switch (loginAttempt.getFailureReason()) {
+                case NETWORK_ERROR:
+                    showNetworkError();
+                    break;
+                case INVALID_CREDENTIALS:
+                    showInvalidCredentials();
+                    break;
+                default:
+                    break;
+
+            }
         }
+    }
+
+    /**
+     * Displays an error message explaining that an error occurred while connecting to the backend
+     * API.
+     */
+    private void showNetworkError() {
+        // TODO: Show a dialog instead
+        Toast.makeText(getContext(), "Connection failure", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Displays an error message explaining that the user has entered invalid login details.
+     */
+    private void showInvalidCredentials() {
+        // TODO: Show a dialog instead
+        Toast.makeText(getContext(), "Invalid credentials", Toast.LENGTH_SHORT).show();
     }
 
     private class LoginTask extends AsyncTask<String, Void, LoginAttempt> {
 
         @Override
         protected LoginAttempt doInBackground(String... strings) {
-            return login(strings[0], strings[1], getContext());
+            return NetworkHelper.login(strings[0], strings[1], getContext());
         }
 
         @Override
