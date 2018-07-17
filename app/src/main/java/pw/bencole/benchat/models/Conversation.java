@@ -22,12 +22,24 @@ public class Conversation {
     /**
      * Creates a Conversation, using a User to represent the other person and an ArrayList of
      * Message objects to contain all messages exchanged.
+     *
      * @param otherPerson a User showing the other person with whom this conversation is
      * @param messages an ArrayList of all messages in this conversation
      */
     public Conversation(User otherPerson, ArrayList<Message> messages) {
         mOtherPerson = otherPerson;
         mMessages = messages;
+    }
+
+    /**
+     * Creates a conversation without any messages supplied. Instead, an empty array will be
+     * created.
+     *
+     * @param otherPerson The other User involved in this conversation
+     */
+    public Conversation(User otherPerson) {
+        mOtherPerson = otherPerson;
+        mMessages = new ArrayList<>();
     }
 
     /**
@@ -45,6 +57,7 @@ public class Conversation {
     /**
      * Returns the most recent message in this conversation, or throws a NoMessagesException if no
      * messages have been exchanged yet.
+     *
      * @return The most recent message in this conversation
      * @throws NoMessagesException if no messages have been exchanged yet
      */
@@ -59,6 +72,7 @@ public class Conversation {
     /**
      * Returns a String preview of the most recent message, or the string "No messages sent!" if
      * there is no such message.
+     *
      * @return A preview of the most recent message
      */
     public String getMostRecentMessagePreview() {

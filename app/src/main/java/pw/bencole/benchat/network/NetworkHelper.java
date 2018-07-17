@@ -3,6 +3,7 @@ package pw.bencole.benchat.network;
 import android.content.Context;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,6 +17,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import pw.bencole.benchat.R;
+import pw.bencole.benchat.models.Conversation;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.Message;
 import pw.bencole.benchat.models.User;
@@ -126,6 +128,44 @@ public class NetworkHelper {
             e.printStackTrace();
         }
         return loginAttempt;
+    }
+
+    /**
+     * Returns a list of all conversations involving the passed LoggedInUser. These conversations
+     * will not be populated with messages.
+     *
+     * @param user The user whose conversations are to be loaded
+     * @param context The Context from which the method is called
+     * @return An ArrayList of all conversations in which the user is a participant
+     */
+    public static ArrayList<Conversation> getAlLConversations(LoggedInUser user, Context context) {
+        JSONObject data = getUserJson(user.getUsername(), user.getPassword());
+        ArrayList<Conversation> conversations = new ArrayList<>();
+        try {
+            String getConversationsURL = context.getResources().getString(R.string.get_conversations_url);
+            Response response = postJson(getConversationsURL, data);
+            ResponseBody body = response.body();
+            if (response.code() == 200) {
+                JSONArray result = new JSONArray(body.string());
+                for (int i = 0; i < result.length(); i++) {
+                    JSONObject json = result.getJSONObject(i);
+                    JSONArray participants = json.getJSONArray("participants");
+                    User otherUser = null;
+                    for (int j = 0; j < participants.length(); j++) {
+                        JSONObject participant = participants.getJSONObject(j);
+                        if (!participant.getString("_id").equals(user.getId())) {
+                            // TODO: Actually use a Set of other users (for group chats)
+                            otherUser = new User(participant.getString("username"),
+                                    participant.getString("_id"));
+                        }
+                    }
+                    if (otherUser != null) conversations.add(new Conversation(otherUser));
+                }
+            }
+        } catch (IOException | NullPointerException | JSONException e) {
+            e.printStackTrace();
+        }
+        return conversations;
     }
 
     public static ArrayList<Message> getAllMessagesBetween(LoggedInUser thisUser, User otherUser) {
