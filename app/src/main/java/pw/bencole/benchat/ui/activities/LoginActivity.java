@@ -17,10 +17,26 @@ import pw.bencole.benchat.ui.fragments.LoginFragment;
 import pw.bencole.benchat.ui.fragments.SignupFragment;
 import pw.bencole.benchat.util.LoginManager;
 
-// TODO: Tidy up this class! Add documentation and stuff and stop using deprecated method calls
+// TODO: Stop using deprecated method calls!
+
+/**
+ * Handles logging in or signing up a user.
+ *
+ * The aim of this Activity is to produce a LoggedInUser object containing the username, id and
+ * password of a valid user. The user can either log in if they already have an account, or sign up
+ * otherwise. Once this is complete and the relevant fragment has received confirmation from the
+ * server that it was successful, a MainActivity instance will be created and the newly constructed
+ * LoggedInUser instance will be passed to it.
+ *
+ * The Activity contains a LoginFragment and a SignupFragment, using tabs and a ViewPager to
+ * switch between them.
+ */
 public class LoginActivity extends AppCompatActivity
         implements LoginFragment.LoginFragmentListener, SignupFragment.SignupFragmentListener {
 
+    /**
+     * ViewPager and PagerAdapter to handle switching Fragments
+     */
     private ViewPager mPager;
     private PagerAdapter mPagerAdapter;
 
@@ -29,9 +45,7 @@ public class LoginActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        setTitle("Welcome"); // TODO: Set this in the manifest instead
-
-        mPager = (ViewPager) findViewById(R.id.loginViewPager);
+        mPager = findViewById(R.id.loginViewPager);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
 

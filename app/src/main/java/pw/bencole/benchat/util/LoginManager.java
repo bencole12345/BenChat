@@ -14,12 +14,18 @@ import pw.bencole.benchat.models.LoggedInUser;
  */
 public class LoginManager {
 
+    /**
+     * Keys to be used to store relevant properties
+     */
     public static final String LOGIN_PREFERENCES = "pw.bencole.benchat.LOGIN_PREFERENCES";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
     public static final String USER_ID = "userId";
     public static final String IS_LOGGED_IN = "is_logged_in";
 
+    /**
+     * Returns a reference to the SharedPreferences file used by this class.
+     */
     private static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(LOGIN_PREFERENCES, Context.MODE_PRIVATE);
     }
@@ -27,6 +33,7 @@ public class LoginManager {
     /**
      * Checks whether the user has previously logged in when they last used the app, in which case
      * they should not be taken to the login screen again.
+     *
      * @return true if there are already username and password details saved from last time; false
      *         otherwise
      */
@@ -41,6 +48,7 @@ public class LoginManager {
     /**
      * Retrieves the user that logged in when the app was last used. In the event that there are
      * no such details stored, null will be returned.
+     *
      * @param context The context from which this method is called
      * @return The LoggedInUser that signed in when the app was last used, or null if they don't
      *         exist
@@ -74,6 +82,7 @@ public class LoginManager {
 
     /**
      * Deletes the logged in user from the permanent store.
+     *
      * @param context The context from which the method was called
      */
     public static void logout(Context context) {

@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,19 +22,42 @@ import pw.bencole.benchat.models.Message;
 import pw.bencole.benchat.network.NetworkHelper;
 import pw.bencole.benchat.ui.adapters.ConversationMessageAdapter;
 
+
+/**
+ * Displays the messages in a conversation, and contains a text box for the user to send their
+ * own messages to this conversation.
+ *
+ * @author Ben Cole
+ */
 public class ConversationActivity extends AppCompatActivity {
 
+    /**
+     * Tags for passing information about the conversation in question to this activity
+     */
     public static String CONVERSATION_THIS_USER = "conversation_this_user";
     public static String CONVERSATION_ID = "conversation_id";
 
+    /**
+     * References to UI elements
+     */
     private ListView mConversationList;
     private TextView mMessageContent;
     private Button mSendMessageButton;
     private ProgressBar mLoadingMessagesProgressSpinner;
 
+    /**
+     * Adapter for displaying messages in a list
+     */
     private ConversationMessageAdapter mAdapter;
 
+    /**
+     * The current user of the app
+     */
     private LoggedInUser mLoggedInUser;
+
+    /**
+     * The ID of the conversation this Activity is displaying
+     */
     private String mConversationId;
 
     @Override
@@ -128,7 +150,7 @@ public class ConversationActivity extends AppCompatActivity {
         mMessageContent.setText("");
         Message message = new Message(content, mLoggedInUser);
         new SendMessageTask().execute(message);
-        // Show a dialog or spinner to show that the message is sending
+        // TODO: Show a dialog or spinner to show that the message is sending
     }
 
     /**

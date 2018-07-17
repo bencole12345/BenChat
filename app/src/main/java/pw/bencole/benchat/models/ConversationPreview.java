@@ -1,11 +1,12 @@
 package pw.bencole.benchat.models;
 
-import java.util.HashSet;
 
 /**
  * Contains a some information about a conversation: its ID, its name and its most recent message.
  *
  * This class is used by ConversationPreviewFragment to represent the preview for one conversation.
+ *
+ * @author Ben Cole
  */
 public class ConversationPreview {
 

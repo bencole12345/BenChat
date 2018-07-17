@@ -1,7 +1,6 @@
 package pw.bencole.benchat.network;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,7 +23,7 @@ import pw.bencole.benchat.models.Message;
 import pw.bencole.benchat.models.User;
 
 /**
- * Encapsulates all communication with the backend API.
+ * Handles all communication with the server.
  *
  * @author Ben Cole
  */
@@ -178,6 +177,14 @@ public class NetworkHelper {
         return conversations;
     }
 
+    /**
+     * Retrieves all messages in the requested conversation.
+     *
+     * @param user The LoggedInUser requesting the messages
+     * @param conversationId The ID of the conversation
+     * @param context The Context from which the method is called
+     * @return A list of all messages in this conversation
+     */
     public static ArrayList<Message> getAllMessagesInConversation(LoggedInUser user, String conversationId, Context context) {
         JSONObject data = getUserJson(user.getUsername(), user.getPassword());
         ArrayList<Message> messages = new ArrayList<>();

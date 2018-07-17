@@ -21,8 +21,14 @@ import pw.bencole.benchat.models.LoggedInUser;
  */
 public class ConversationPreviewAdapter extends ArrayAdapter<ConversationPreview> {
 
+    /**
+     * Reference to the current logged in user
+     */
     private LoggedInUser mUser;
 
+    /**
+     * Stores references to UI elements to reduce the number of findViewById() calls made
+     */
     private static class ViewHolder {
         TextView contactName;
         TextView messagePreview;

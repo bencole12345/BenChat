@@ -13,8 +13,17 @@ import java.util.List;
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.Message;
 
+
+/**
+ * Populates a list of messages.
+ *
+ * @author Ben Cole
+ */
 public class ConversationMessageAdapter extends ArrayAdapter<Message> {
 
+    /**
+     * Stores references to UI elements to reduce the number of findViewById() calls made
+     */
     private static class ViewHolder {
         TextView username;
         TextView timestamp;
@@ -38,6 +47,7 @@ public class ConversationMessageAdapter extends ArrayAdapter<Message> {
             result = convertView;
         }
 
+        // TODO: Do this properly! Currently the whole advantage of the ViewHolder patten is missed...
         ViewHolder viewHolder = new ViewHolder();
         viewHolder.username = result.findViewById(R.id.usernameText);
         viewHolder.timestamp = result.findViewById(R.id.timestampText);

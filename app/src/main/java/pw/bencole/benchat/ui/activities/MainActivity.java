@@ -1,24 +1,32 @@
 package pw.bencole.benchat.ui.activities;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.ConversationPreview;
 import pw.bencole.benchat.models.LoggedInUser;
-import pw.bencole.benchat.models.User;
 import pw.bencole.benchat.ui.fragments.ConversationsOverviewFragment;
 import pw.bencole.benchat.util.LoginManager;
 
+
+/**
+ * The main screen of the app.
+ *
+ * This Activity shows a list of all conversations in which the user is a member. Selecting one of
+ * these conversations initiates a ConversationActivity for that conversation.
+ *
+ * @author Ben Cole
+ */
 public class MainActivity extends AppCompatActivity implements ConversationsOverviewFragment.OnConversationSelectedListener {
 
+    /**
+     * Tracks the logged in user so that API requests can be made
+     */
     private LoggedInUser mUser;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +69,11 @@ public class MainActivity extends AppCompatActivity implements ConversationsOver
         finish();
     }
 
+    /**
+     * Returns the user that is logged in to the app.
+     *
+     * @return the user that is logged in to the app
+     */
     public LoggedInUser getUser() {
         return mUser;
     }

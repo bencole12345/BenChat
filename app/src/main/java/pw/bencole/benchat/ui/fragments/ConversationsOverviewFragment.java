@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.ConversationPreview;
 import pw.bencole.benchat.models.LoggedInUser;
-import pw.bencole.benchat.models.Message;
-import pw.bencole.benchat.models.User;
 import pw.bencole.benchat.network.NetworkHelper;
 import pw.bencole.benchat.ui.adapters.ConversationPreviewAdapter;
 
