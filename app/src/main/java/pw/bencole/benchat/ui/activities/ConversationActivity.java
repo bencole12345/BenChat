@@ -6,10 +6,14 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -27,6 +31,7 @@ public class ConversationActivity extends AppCompatActivity {
     private ListView mConversationList;
     private TextView mMessageContent;
     private Button mSendMessageButton;
+    private ProgressBar mLoadingMessagesProgressSpinner;
 
     private ConversationMessageAdapter mAdapter;
 
@@ -48,6 +53,7 @@ public class ConversationActivity extends AppCompatActivity {
         mConversationList = findViewById(R.id.conversationList);
         mMessageContent = findViewById(R.id.messageContent);
         mSendMessageButton = findViewById(R.id.sendButton);
+        mLoadingMessagesProgressSpinner = findViewById(R.id.loadingMessagesProgressSpinner);
 
         // Disable the send message button if the text field is empty to prevent sending empty
         // messages
@@ -83,9 +89,33 @@ public class ConversationActivity extends AppCompatActivity {
     }
 
     /**
+     * Set the Menu for this Activity.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.conversation_activity_menu, menu);
+        return true;
+    }
+
+    /**
+     * Set up a handler for each menu item.
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.refreshMenuItem:
+                refreshMessages();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
      * Begins an asynchronous download task to refresh the messages that are displayed.
      */
     private void refreshMessages() {
+        mAdapter.clear();
+        mLoadingMessagesProgressSpinner.setVisibility(View.VISIBLE);
         new MessagesDownloadTask().execute();
     }
 
@@ -94,7 +124,19 @@ public class ConversationActivity extends AppCompatActivity {
      * or empty text field) then an it will be handled and an error displayed.
      */
     private void sendMessage() {
-        // TODO: Send the message
+        String content = mMessageContent.getText().toString();
+        mMessageContent.setText("");
+        Message message = new Message(content, mLoggedInUser);
+        new SendMessageTask().execute(message);
+        // Show a dialog or spinner to show that the message is sending
+    }
+
+    /**
+     * Displays an error message explaining that there was a problem sending the message.
+     */
+    private void showErrorSendingMessage() {
+        // TODO: Show a dialog
+        Toast.makeText(this, "There was a problem sending the message.", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -111,6 +153,30 @@ public class ConversationActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<Message> messages) {
             mAdapter.clear();
             mAdapter.addAll(messages);
+            mLoadingMessagesProgressSpinner.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    /**
+     * Sends the user's message to the server.
+     */
+    private class SendMessageTask extends AsyncTask<Message, Void, Boolean> {
+
+        private Message mMessage;
+
+        @Override
+        protected Boolean doInBackground(Message... messages) {
+            mMessage = messages[0];
+            return NetworkHelper.sendMessage(mLoggedInUser, mMessage, mConversationId, getApplicationContext());
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success) {
+                mAdapter.add(mMessage);
+            } else {
+                showErrorSendingMessage();
+            }
         }
     }
 }

@@ -203,4 +203,27 @@ public class NetworkHelper {
         return messages;
     }
 
+    /**
+     * Attempts to send a message to a conversation.
+     *
+     * @param user The LoggedInUser sending the message
+     * @param message The Message to be the sent
+     * @param conversationID The ID of the target conversation
+     * @param context The Context from which the method is called
+     * @return true if the operation was successful; false otherwise
+     */
+    public static boolean sendMessage(LoggedInUser user, Message message, String conversationID, Context context) {
+        JSONObject data = getUserJson(user.getUsername(), user.getPassword());
+        try {
+            data.put("messageContent", message.getContent());
+            data.put("conversationId", conversationID);
+            String url = context.getResources().getString(R.string.send_message_url);
+            Response response = postJson(url, data);
+            return (response.code() == 201);
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

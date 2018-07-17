@@ -18,6 +18,11 @@ public class Message {
         mTimestamp = timestamp;
     }
 
+    public Message(String content, User sender) {
+        mContent = content;
+        mSender = sender;
+    }
+
     public String getContent() {
         return mContent;
     }
