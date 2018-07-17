@@ -11,27 +11,31 @@ import android.widget.TextView;
 import java.util.List;
 
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.Conversation;
+import pw.bencole.benchat.models.ConversationPreview;
+import pw.bencole.benchat.models.LoggedInUser;
 
 /**
- * Populates the conversations overview list using an ArrayList of Conversation objects.
+ * Populates the conversations overview list using an ArrayList of ConversationPreview objects.
  *
  * @author Ben Cole
  */
-public class ConversationPreviewAdapter extends ArrayAdapter<Conversation> {
+public class ConversationPreviewAdapter extends ArrayAdapter<ConversationPreview> {
+
+    private LoggedInUser mUser;
 
     private static class ViewHolder {
         TextView contactName;
         TextView messagePreview;
     }
 
-    public ConversationPreviewAdapter(@NonNull Context context, int resource, @NonNull List<Conversation> objects) {
+    public ConversationPreviewAdapter(LoggedInUser user, @NonNull Context context, int resource, @NonNull List<ConversationPreview> objects) {
         super(context, resource, objects);
+        mUser = user;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Conversation conversation = getItem(position);
+        ConversationPreview conversation = getItem(position);
         ViewHolder viewHolder = new ViewHolder();
 
         final View result;
@@ -45,8 +49,8 @@ public class ConversationPreviewAdapter extends ArrayAdapter<Conversation> {
 
         viewHolder.contactName = result.findViewById(R.id.contactNameTextView);
         viewHolder.messagePreview = result.findViewById(R.id.messagePreviewTextView);
-        viewHolder.contactName.setText(conversation.getOtherPerson().getUsername());
-        viewHolder.messagePreview.setText(conversation.getMostRecentMessagePreview());
+        viewHolder.contactName.setText(conversation.getConversationName());
+        viewHolder.messagePreview.setText(conversation.getMessagePreview());
         return result;
     }
 }

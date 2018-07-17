@@ -9,7 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.Conversation;
+import pw.bencole.benchat.models.ConversationPreview;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.User;
 import pw.bencole.benchat.ui.fragments.ConversationsOverviewFragment;
@@ -34,11 +34,10 @@ public class MainActivity extends AppCompatActivity implements ConversationsOver
     }
 
     @Override
-    public void onConversationSelected(Conversation conversation) {
-        Log.v("MainActivity", "onConversationSelected() called");
+    public void onConversationSelected(ConversationPreview conversation) {
         Intent conversationIntent = new Intent(this, ConversationActivity.class);
         conversationIntent.putExtra(ConversationActivity.CONVERSATION_THIS_USER, mUser);
-        conversationIntent.putExtra(ConversationActivity.CONVERSATION_OTHER_USER, conversation.getOtherPerson());
+        conversationIntent.putExtra(ConversationActivity.CONVERSATION_ID, conversation.getId());
         startActivity(conversationIntent);
     }
 

@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -17,7 +18,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.Conversation;
+import pw.bencole.benchat.models.ConversationPreview;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.Message;
 import pw.bencole.benchat.models.User;
@@ -138,9 +139,9 @@ public class NetworkHelper {
      * @param context The Context from which the method is called
      * @return An ArrayList of all conversations in which the user is a participant
      */
-    public static ArrayList<Conversation> getAlLConversations(LoggedInUser user, Context context) {
+    public static ArrayList<ConversationPreview> getAllConversations(LoggedInUser user, Context context) {
         JSONObject data = getUserJson(user.getUsername(), user.getPassword());
-        ArrayList<Conversation> conversations = new ArrayList<>();
+        ArrayList<ConversationPreview> conversations = new ArrayList<>();
         try {
             String getConversationsURL = context.getResources().getString(R.string.get_conversations_url);
             Response response = postJson(getConversationsURL, data);
@@ -150,16 +151,25 @@ public class NetworkHelper {
                 for (int i = 0; i < result.length(); i++) {
                     JSONObject json = result.getJSONObject(i);
                     JSONArray participants = json.getJSONArray("participants");
-                    User otherUser = null;
+                    HashSet<User> participantsSet = new HashSet<>();
+                    String conversationName = "unnamed conversation";
                     for (int j = 0; j < participants.length(); j++) {
                         JSONObject participant = participants.getJSONObject(j);
-                        if (!participant.getString("_id").equals(user.getId())) {
-                            // TODO: Actually use a Set of other users (for group chats)
-                            otherUser = new User(participant.getString("username"),
-                                    participant.getString("_id"));
-                        }
+                        String username = participant.getString("username");
+                        String userId = participant.getString("_id");
+                        participantsSet.add(new User(username, userId));
+                        // TODO: Modify API to actually store a conversation name
+                        if (!userId.equals(user.getId())) conversationName = username;
                     }
-                    if (otherUser != null) conversations.add(new Conversation(otherUser));
+
+                    // TODO: Modify the API so you don't have to do this
+                    ArrayList<Message> messages = getAllMessagesInConversation(user, json.getString("_id"), context);
+                    Message mostRecentMessage = null;
+                    if (messages.size() > 0) {
+                        mostRecentMessage = messages.get(0);
+                    }
+
+                    conversations.add(new ConversationPreview(json.getString("_id"), mostRecentMessage, conversationName));
                 }
             }
         } catch (IOException | NullPointerException | JSONException e) {
@@ -168,27 +178,28 @@ public class NetworkHelper {
         return conversations;
     }
 
-    public static ArrayList<Message> getAllMessagesBetween(LoggedInUser thisUser, User otherUser) {
-
-        // TODO: Actually load messages from the server!
-
+    public static ArrayList<Message> getAllMessagesInConversation(LoggedInUser user, String conversationId, Context context) {
+        JSONObject data = getUserJson(user.getUsername(), user.getPassword());
         ArrayList<Message> messages = new ArrayList<>();
-
-        messages.add(new Message(
-                "Hello there, " + thisUser.getUsername(),
-                otherUser, thisUser, 0));
-        messages.add(new Message(
-                "How are you?", otherUser, thisUser, 1)
-        );
-        messages.add(new Message(
-                "Good thanks!", thisUser, otherUser, 2)
-        );
-        messages.add(new Message(
-                "We should add more messages so that the chat is a bit longer.", otherUser, thisUser, 3
-        ));
-        messages.add(new Message("That is a brilliant idea!", thisUser, otherUser, 4));
-        messages.add(new Message("It sure is!", otherUser, thisUser, 5));
-
+        try {
+            data.put("conversationId", conversationId);
+            String url = context.getResources().getString(R.string.get_messages_url);
+            Response response = postJson(url, data);
+            ResponseBody body = response.body();
+            JSONArray messagesJson = new JSONArray(body.string());
+            for (int i = 0; i < messagesJson.length(); i++) {
+                JSONObject message = messagesJson.getJSONObject(i);
+                JSONObject author = message.getJSONObject("author");
+                String authorId = author.getString("_id");
+                String authorName = author.getString("username");
+                String messageContent = message.getString("content");
+                User sender = new User(authorName, authorId);
+                // TODO: Load the timestamp from the data and replace "i" below
+                messages.add(new Message(messageContent, sender, i));
+            }
+        } catch (IOException | NullPointerException | JSONException e) {
+            e.printStackTrace();
+        }
         return messages;
     }
 

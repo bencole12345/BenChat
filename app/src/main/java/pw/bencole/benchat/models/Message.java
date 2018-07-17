@@ -1,6 +1,5 @@
 package pw.bencole.benchat.models;
 
-import java.util.Date;
 
 /**
  * Encapsulates a message either sent to or from the user.
@@ -12,12 +11,10 @@ public class Message {
     private String mContent;
     private User mSender;
     private long mTimestamp;
-    private User mRecipient;
 
-    public Message(String content, User sender, User recipient, long timestamp) {
+    public Message(String content, User sender, long timestamp) {
         mContent = content;
         mSender = sender;
-        mRecipient = recipient;
         mTimestamp = timestamp;
     }
 

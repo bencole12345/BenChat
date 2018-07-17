@@ -1,35 +1,37 @@
 package pw.bencole.benchat.ui.activities;
 
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.Message;
-import pw.bencole.benchat.models.User;
 import pw.bencole.benchat.network.NetworkHelper;
 import pw.bencole.benchat.ui.adapters.ConversationMessageAdapter;
 
 public class ConversationActivity extends AppCompatActivity {
 
     public static String CONVERSATION_THIS_USER = "conversation_this_user";
-    public static String CONVERSATION_OTHER_USER = "conversation_other_user";
+    public static String CONVERSATION_ID = "conversation_id";
 
     private ListView mConversationList;
     private TextView mMessageContent;
     private Button mSendMessageButton;
 
-    private LoggedInUser mThisUser;
-    private User mOtherUser;
+    private ConversationMessageAdapter mAdapter;
+
+    private LoggedInUser mLoggedInUser;
+    private String mConversationId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,11 +39,10 @@ public class ConversationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_conversation);
 
         // Unpack the users passed to this activity
-        mThisUser = (LoggedInUser) getIntent().getExtras().get(CONVERSATION_THIS_USER);
-        mOtherUser = (User) getIntent().getExtras().get(CONVERSATION_OTHER_USER);
+        mLoggedInUser = (LoggedInUser) getIntent().getExtras().get(CONVERSATION_THIS_USER);
+        mConversationId = getIntent().getExtras().getString(CONVERSATION_ID);
 
-        // Set the activity title to the username of the other person
-        setTitle(mOtherUser.getUsername());
+        // TODO: set the activity title
 
         // Find the view elements from the layout
         mConversationList = findViewById(R.id.conversationList);
@@ -75,17 +76,17 @@ public class ConversationActivity extends AppCompatActivity {
         });
 
         // Set the adaptor to display the list of messages
-        ConversationMessageAdapter adapter = new ConversationMessageAdapter(this, R.layout.listelement_conversation_message, getMessages());
-        mConversationList.setAdapter(adapter);
+        mAdapter = new ConversationMessageAdapter(this, R.layout.listelement_conversation_message, new ArrayList<Message>());
+        mConversationList.setAdapter(mAdapter);
+
+        refreshMessages();
     }
 
     /**
-     * Loads and returns all messages in chronological order between the logged in user and the
-     * other user.
-     * @return All messages between this user and the other user
+     * Begins an asynchronous download task to refresh the messages that are displayed.
      */
-    private List<Message> getMessages() {
-        return NetworkHelper.getAllMessagesBetween(mThisUser, mOtherUser);
+    private void refreshMessages() {
+        new MessagesDownloadTask().execute();
     }
 
     /**
@@ -94,5 +95,22 @@ public class ConversationActivity extends AppCompatActivity {
      */
     private void sendMessage() {
         // TODO: Send the message
+    }
+
+    /**
+     * Downloads the messages for this conversation and updates the UI with the result.
+     */
+    private class MessagesDownloadTask extends AsyncTask<Void, Void, ArrayList<Message>> {
+
+        @Override
+        protected ArrayList<Message> doInBackground(Void... voids) {
+            return NetworkHelper.getAllMessagesInConversation(mLoggedInUser, mConversationId, getApplicationContext());
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Message> messages) {
+            mAdapter.clear();
+            mAdapter.addAll(messages);
+        }
     }
 }
