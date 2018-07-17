@@ -50,6 +50,24 @@ public class NetworkHelper {
     }
 
     /**
+     * Creates a JSONObject containing the passed username and password.
+     *
+     * @param username The username attribute
+     * @param password The password attribute
+     * @return A JSONObject with the username and password attributes set
+     */
+    private static JSONObject getUserJson(String username, String password) {
+        JSONObject user = new JSONObject();
+        try {
+            user.put("username", username);
+            user.put("password", password);
+            return user;
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
+    /**
      * Attempts to log in to the API. The result, successful or otherwise, is encapsulated in a
      * LoginAttempt object.
      *
@@ -59,24 +77,20 @@ public class NetworkHelper {
      *         LoggedInUser object if the login was successful
      */
     public static LoginAttempt login(String username, String password, Context context) {
-        JSONObject data = new JSONObject();
-        try {
-            data.put("username", username);
-            data.put("password", password);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        JSONObject data = getUserJson(username, password);
         LoginAttempt loginAttempt = null;
         try {
             String loginURL = context.getResources().getString(R.string.login_url);
             Response response = postJson(loginURL, data);
-//            Log.d("NetworkHelper", response.body().string());
             ResponseBody body = response.body();
-            JSONObject result = new JSONObject(body.string());
-            String id = result.getString("_id");
-            LoggedInUser user = new LoggedInUser(username, password, id);
-            loginAttempt = new LoginAttempt(true, user, FailureReason.NONE);
-            // TODO: Check if password was wrong (this code assumes it was correct);
+            if (response.code() == 200) {
+                JSONObject result = new JSONObject(body.string());
+                String id = result.getString("_id");
+                LoggedInUser user = new LoggedInUser(username, password, id);
+                loginAttempt = new LoginAttempt(true, user, FailureReason.NONE);
+            } else if (response.code() == 401) {
+                loginAttempt = new LoginAttempt(false, null, FailureReason.INVALID_CREDENTIALS);
+            }
         } catch (IOException | NullPointerException | JSONException e) {
             e.printStackTrace();
             loginAttempt = new LoginAttempt(false, null, FailureReason.NETWORK_ERROR);
@@ -84,8 +98,34 @@ public class NetworkHelper {
         return loginAttempt;
     }
 
-    public static LoginAttempt signup(String username, String password) {
-        return null;
+    /**
+     * Attempts to register a new user with the backend API and log them in. The result, successful
+     * or otherwise, is contained in a LoginAttempt object.
+     *
+     * @param username The username of the new user
+     * @param password The password of the new user
+     * @return A LoginAttempt containing a LoggedInUser if the signup was successful, or a
+     *         FailureReason otherwise
+     */
+    public static LoginAttempt signup(String username, String password, Context context) {
+        JSONObject data = getUserJson(username, password);
+        LoginAttempt loginAttempt = null;
+        try {
+            String signupURL = context.getResources().getString(R.string.signup_url);
+            Response response = postJson(signupURL, data);
+            ResponseBody body = response.body();
+            if (response.code() == 201) {
+                JSONObject result = new JSONObject(body.string());
+                String id = result.getString("_id");
+                LoggedInUser user = new LoggedInUser(username, password, id);
+                loginAttempt = new LoginAttempt(true, user, FailureReason.NONE);
+            } else if (response.code() == 422) {
+                loginAttempt = new LoginAttempt(false, null, FailureReason.USERNAME_TAKEN);
+            }
+        } catch (IOException | NullPointerException | JSONException e) {
+            e.printStackTrace();
+        }
+        return loginAttempt;
     }
 
     public static ArrayList<Message> getAllMessagesBetween(LoggedInUser thisUser, User otherUser) {

@@ -1,7 +1,7 @@
 package pw.bencole.benchat.ui.fragments;
 
 import android.content.Context;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -9,9 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.LoggedInUser;
+import pw.bencole.benchat.network.LoginAttempt;
+import pw.bencole.benchat.network.NetworkHelper;
 
 public class SignupFragment extends Fragment {
 
@@ -77,20 +80,69 @@ public class SignupFragment extends Fragment {
      * has entered invalid values or the connection fails then they will be notified.
      */
     private void attemptSignup() {
-        // TODO: Actually sign up
-
         String username = mUsernameField.getText().toString();
         String password = mPasswordField.getText().toString();
         String passwordRetyped = mPasswordReentryField.getText().toString();
-
         if (!password.equals(passwordRetyped)) {
             showPasswordMismatch();
             return;
         }
+        new SignupTask().execute(username, password);
+    }
 
-        LoggedInUser user = new LoggedInUser(username, password, "");
+    /**
+     * Handles the result of an attempted signup.
+     *
+     * If the signup was successful, the created LoggedInUser will be passed to the callback
+     * method of the containing activity. Otherwise, an appropriate error message will be displayed
+     * to the user.
+     *
+     * @param loginAttempt The LoginAttempt describing the result of the attempted signup
+     */
+    private void handleSignupResponse(LoginAttempt loginAttempt) {
+        if (loginAttempt.getWasSuccessful()) {
+            mListener.onSignupCompletion(loginAttempt.getUser());
+        } else {
+            switch (loginAttempt.getFailureReason()) {
+                case USERNAME_TAKEN:
+                    showUsernameAlreadyTaken();
+                    break;
+                case NETWORK_ERROR:
+                    showNetworkError();
+                    break;
+                default:
+                    showGenericError();
+                    break;
+            }
+        }
+    }
 
-        mListener.onSignupCompletion(user);
+    private void showUsernameAlreadyTaken() {
+        // TODO: Show a dialog
+        Toast.makeText(getContext(), "That username is already taken", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showNetworkError() {
+        // TODO: Show a dialog
+        Toast.makeText(getContext(), "Connection failure", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showGenericError() {
+        Toast.makeText(getContext(), "An error occurred", Toast.LENGTH_SHORT).show();
+    }
+
+    private class SignupTask extends AsyncTask<String, Void, LoginAttempt> {
+
+        @Override
+        protected LoginAttempt doInBackground(String... strings) {
+            return NetworkHelper.signup(strings[0], strings[1], getContext());
+        }
+
+        @Override
+        protected void onPostExecute(LoginAttempt loginAttempt) {
+            super.onPostExecute(loginAttempt);
+            handleSignupResponse(loginAttempt);
+        }
     }
 
 }

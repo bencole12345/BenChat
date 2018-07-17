@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="signup_url">http://benchat.bencole.pw/auth/register</string>
-    <string name="login_url">http://benchat.bencole.pw/auth/login</string>
-    <string name="send_message_url">http://benchat.bencole.pw/messages/send</string>
-    <string name="get_messages_url">http://benchat.bencole.pw/messages/view</string>
-    <string name="create_conversation_url">http://benchat.bencole.pw/conversations/new</string>
-    <string name="get_conversations_url">http://benchat.bencole.pw/conversations/all</string>
+    <string name="signup_url">https://benchat-api.herokuapp.com/auth/register</string>
+    <string name="login_url">https://benchat-api.herokuapp.com/auth/login</string>
+    <string name="send_message_url">https://benchat-api.herokuapp.com/messages/send</string>
+    <string name="get_messages_url">https://benchat-api.herokuapp.com/messages/view</string>
+    <string name="create_conversation_url">https://benchat-api.herokuapp.com/conversations/new</string>
+    <string name="get_conversations_url">https://benchat-api.herokuapp.com/conversations/all</string>
 </resources>
