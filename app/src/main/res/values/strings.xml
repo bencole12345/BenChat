@@ -22,4 +22,6 @@
     <string name="conversations">Conversations</string>
     <string name="sign_out">Sign Out</string>
     <string name="refresh_messages">Refresh messages</string>
+    <string name="who_chat_with">Who do you want to chat with?</string>
+    <string name="username_hint">Username</string>
 </resources>

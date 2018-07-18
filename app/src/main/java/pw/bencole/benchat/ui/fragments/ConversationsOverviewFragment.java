@@ -1,8 +1,10 @@
 package pw.bencole.benchat.ui.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.ConversationPreview;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.network.NetworkHelper;
+import pw.bencole.benchat.ui.activities.NewConversationActivity;
 import pw.bencole.benchat.ui.adapters.ConversationPreviewAdapter;
 
 /**
@@ -31,6 +34,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
      * References to UI elements
      */
     private ListView mConversationsList;
+    private FloatingActionButton mFab;
 
     /**
      * A custom adapter to produce previews from ConversationPreview objects
@@ -60,6 +64,14 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
         mConversations = new ArrayList<>();
         mConversationsList = view.findViewById(R.id.conversationsOverviewListView);
         mConversationsList.setOnItemClickListener(this);
+
+        mFab = view.findViewById(R.id.newConversationFAB);
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createNewConversation();
+            }
+        });
 
         mAdapter = new ConversationPreviewAdapter(mListener.getUser(), getContext(), R.layout.listelement_conversation_overview, mConversations);
         mConversationsList.setAdapter(mAdapter);
@@ -94,6 +106,14 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
     private void updateConversations(ArrayList<ConversationPreview> conversations) {
         mAdapter.clear();
         mAdapter.addAll(conversations);
+    }
+
+    /**
+     * Launches a NewConversationActivity instance.
+     */
+    private void createNewConversation() {
+        Intent intent = new Intent(getContext(), NewConversationActivity.class);
+        startActivity(intent);
     }
 
     @Override
