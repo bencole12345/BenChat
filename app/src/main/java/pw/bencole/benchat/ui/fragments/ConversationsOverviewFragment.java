@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 
@@ -35,6 +36,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
      */
     private ListView mConversationsList;
     private FloatingActionButton mFab;
+    private ProgressBar mLoadingSpinner;
 
     /**
      * A custom adapter to produce previews from ConversationPreview objects
@@ -65,13 +67,16 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
         mConversationsList = view.findViewById(R.id.conversationsOverviewListView);
         mConversationsList.setOnItemClickListener(this);
 
-        mFab = view.findViewById(R.id.newConversationFAB);
+        mFab = view.findViewById(R.id.floatingActionButtonNewConversation);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 createNewConversation();
             }
         });
+
+        mLoadingSpinner = view.findViewById(R.id.loadingSpinner);
+        mLoadingSpinner.setVisibility(View.INVISIBLE);
 
         mAdapter = new ConversationPreviewAdapter(mListener.getUser(), getContext(), R.layout.listelement_conversation_overview, mConversations);
         mConversationsList.setAdapter(mAdapter);
@@ -132,6 +137,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
          */
         @Override
         protected ArrayList<ConversationPreview> doInBackground(Void... voids) {
+            mLoadingSpinner.setVisibility(View.VISIBLE);
             return NetworkHelper.getAllConversations(mListener.getUser(), getContext());
         }
 
@@ -141,6 +147,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
          */
         @Override
         protected void onPostExecute(ArrayList<ConversationPreview> conversations) {
+            mLoadingSpinner.setVisibility(View.INVISIBLE);
             updateConversations(conversations);
         }
     }
