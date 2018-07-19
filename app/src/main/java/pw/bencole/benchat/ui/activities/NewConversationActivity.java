@@ -1,13 +1,20 @@
 package pw.bencole.benchat.ui.activities;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import pw.bencole.benchat.R;
+import pw.bencole.benchat.models.LoggedInUser;
+import pw.bencole.benchat.network.ConversationCreationAttempt;
+import pw.bencole.benchat.network.NetworkHelper;
 
 
 /**
@@ -17,13 +24,19 @@ import pw.bencole.benchat.R;
  */
 public class NewConversationActivity extends AppCompatActivity {
 
+    private EditText mOtherUsernameField;
     private Button mCreateConversationButton;
+
+    private LoggedInUser mLoggedInUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_conversation);
 
+        mLoggedInUser = (LoggedInUser) getIntent().getExtras().get("user");
+
+        mOtherUsernameField = findViewById(R.id.otherUsernameField);
         mCreateConversationButton = findViewById(R.id.createConversationButton);
         mCreateConversationButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -38,14 +51,39 @@ public class NewConversationActivity extends AppCompatActivity {
      * successful.
      */
     private void createConversation() {
-
+        new NewConversationTask().execute();
     }
 
-    private class NewConversationTask extends AsyncTask<Void, Void, Void> {
+    private void handleConverationCreationAttempt(ConversationCreationAttempt attempt) {
+        if (attempt.getWasSuccessful()) {
+            Intent conversationActivityIntent = new Intent(this, ConversationActivity.class);
+            conversationActivityIntent.putExtra(ConversationActivity.CONVERSATION_THIS_USER, mLoggedInUser);
+            conversationActivityIntent.putExtra(ConversationActivity.CONVERSATION_ID, attempt.getConversationId());
+            startActivity(conversationActivityIntent);
+            finish();
+        } else {
+            switch (attempt.getFailureReason()) {
+                case NETWORK_ERROR:
+                    Toast.makeText(this, "Network error", Toast.LENGTH_SHORT);
+                    return;
+                case CONVERSATION_ALREADY_EXISTS:
+                    // Show a dialog, include button to go to that conversation that launches a ConversationActivity (the id is included in the response)
+                    Toast.makeText(this, "Conversation already exists!", Toast.LENGTH_SHORT);
+            }
+        }
+    }
+
+    private class NewConversationTask extends AsyncTask<Void, Void, ConversationCreationAttempt> {
 
         @Override
-        protected Void doInBackground(Void... voids) {
-            return null;
+        protected ConversationCreationAttempt doInBackground(Void... voids) {
+            String otherUsername = mOtherUsernameField.getText().toString();
+            return NetworkHelper.createConversation(mLoggedInUser, otherUsername, getApplicationContext());
+        }
+
+        @Override
+        protected void onPostExecute(ConversationCreationAttempt attempt) {
+            handleConverationCreationAttempt(attempt);
         }
     }
 }

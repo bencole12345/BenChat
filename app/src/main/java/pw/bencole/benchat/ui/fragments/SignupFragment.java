@@ -101,7 +101,7 @@ public class SignupFragment extends Fragment {
      */
     private void handleSignupResponse(LoginAttempt loginAttempt) {
         if (loginAttempt.getWasSuccessful()) {
-            mListener.onSignupCompletion(loginAttempt.getUser());
+            mListener.onSignupCompletion(loginAttempt.getCreatedObject());
         } else {
             switch (loginAttempt.getFailureReason()) {
                 case USERNAME_TAKEN:

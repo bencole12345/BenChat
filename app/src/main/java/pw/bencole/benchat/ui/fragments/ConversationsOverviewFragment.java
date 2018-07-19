@@ -118,6 +118,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
      */
     private void createNewConversation() {
         Intent intent = new Intent(getContext(), NewConversationActivity.class);
+        intent.putExtra("user", mListener.getUser());
         startActivity(intent);
     }
 

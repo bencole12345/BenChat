@@ -93,7 +93,7 @@ public class LoginFragment extends Fragment {
      */
     private void handleLoginResponse(LoginAttempt loginAttempt) {
         if (loginAttempt.getWasSuccessful()) {
-            mListener.onLoginComplete(loginAttempt.getUser());
+            mListener.onLoginComplete(loginAttempt.getCreatedObject());
         } else {
             switch (loginAttempt.getFailureReason()) {
                 case NETWORK_ERROR:

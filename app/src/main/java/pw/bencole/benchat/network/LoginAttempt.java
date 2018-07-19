@@ -12,28 +12,8 @@ import pw.bencole.benchat.models.LoggedInUser;
  *
  * @author Ben Cole
  */
-public class LoginAttempt {
-
-    private boolean mSuccess;
-    private LoggedInUser mUser;
-    private FailureReason mFailureReason;
-
-    public LoginAttempt(boolean success, LoggedInUser user, FailureReason failureReason) {
-        mSuccess = success;
-        mUser = user;
-        mFailureReason = failureReason;
+public class LoginAttempt extends ResourceCreationAttempt<LoggedInUser> {
+    public LoginAttempt(boolean success, LoggedInUser loggedInUser, FailureReason failureReason) {
+        super(success, loggedInUser, failureReason);
     }
-
-    public boolean getWasSuccessful() {
-        return mSuccess;
-    }
-
-    public LoggedInUser getUser() {
-        return mUser;
-    }
-
-    public FailureReason getFailureReason() {
-        return mFailureReason;
-    }
-
 }

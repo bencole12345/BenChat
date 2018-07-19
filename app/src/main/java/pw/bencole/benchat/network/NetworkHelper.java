@@ -1,6 +1,7 @@
 package pw.bencole.benchat.network;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -67,6 +68,18 @@ public class NetworkHelper {
         } catch (JSONException e) {
             return null;
         }
+    }
+
+    private static JSONObject getUserJson(LoggedInUser user) {
+        JSONObject data = new JSONObject();
+        try {
+            data.put("username", user.getUsername());
+            data.put("password", user.getPassword());
+            data.put("_id", user.getId());
+        } catch (JSONException e) {
+            data = null;
+        }
+        return data;
     }
 
     /**
@@ -139,7 +152,7 @@ public class NetworkHelper {
      * @return An ArrayList of all conversations in which the user is a participant
      */
     public static ArrayList<ConversationPreview> getAllConversations(LoggedInUser user, Context context) {
-        JSONObject data = getUserJson(user.getUsername(), user.getPassword());
+        JSONObject data = getUserJson(user);
         ArrayList<ConversationPreview> conversations = new ArrayList<>();
         try {
             String getConversationsURL = context.getResources().getString(R.string.get_conversations_url);
@@ -186,7 +199,7 @@ public class NetworkHelper {
      * @return A list of all messages in this conversation
      */
     public static ArrayList<Message> getAllMessagesInConversation(LoggedInUser user, String conversationId, Context context) {
-        JSONObject data = getUserJson(user.getUsername(), user.getPassword());
+        JSONObject data = getUserJson(user);
         ArrayList<Message> messages = new ArrayList<>();
         try {
             data.put("conversationId", conversationId);
@@ -208,6 +221,36 @@ public class NetworkHelper {
             e.printStackTrace();
         }
         return messages;
+    }
+
+    /**
+     * Attempts to create a new conversation with the other user, and uses a
+     * ConversationCreationAttempt object to convey the result.
+     *
+     * @param user The logged in user
+     * @param otherUsername The username of the other participant in this conversation
+     * @param context The context from which the method is called
+     * @return A ConversationCreatingAttempt containing the result of the operation
+     */
+    public static ConversationCreationAttempt createConversation(LoggedInUser user, String otherUsername, Context context) {
+        JSONObject data = getUserJson(user);
+        try {
+            data.put("otherUsername", otherUsername);
+            String url = context.getResources().getString(R.string.create_conversation_url);
+            Response response = postJson(url, data);
+            ResponseBody body = response.body();
+            if (response.code() == 201) {
+                JSONObject bodyParsed = new JSONObject(body.string());
+                return new ConversationCreationAttempt(true, bodyParsed.getString("_id"), FailureReason.NONE);
+            } else if (response.code() == 422) {
+                return new ConversationCreationAttempt(false, null, FailureReason.CONVERSATION_ALREADY_EXISTS);
+            } else {
+                return new ConversationCreationAttempt(false, null, FailureReason.NETWORK_ERROR);
+            }
+        } catch (IOException | NullPointerException | JSONException e) {
+            e.printStackTrace();
+            return new ConversationCreationAttempt(false, null, FailureReason.NETWORK_ERROR);
+        }
     }
 
     /**
