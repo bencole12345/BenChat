@@ -81,8 +81,6 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
         mAdapter = new ConversationPreviewAdapter(mListener.getUser(), getContext(), R.layout.listelement_conversation_overview, mConversations);
         mConversationsList.setAdapter(mAdapter);
 
-        new ConversationDownloadTask().execute();
-
         return view;
     }
 
@@ -104,13 +102,28 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
     }
 
     /**
+     * Refreshes the list of conversations.
+     */
+    private void refresh() {
+        mLoadingSpinner.setVisibility(View.VISIBLE);
+        new ConversationDownloadTask().execute();
+    }
+
+    /**
      * Updates the conversations being displayed once the download operation has completed.
      *
      * @param conversations The new list of conversations to display
      */
-    private void updateConversations(ArrayList<ConversationPreview> conversations) {
+    private void finishRefresh(ArrayList<ConversationPreview> conversations) {
         mAdapter.clear();
         mAdapter.addAll(conversations);
+        mLoadingSpinner.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refresh();
     }
 
     /**
@@ -129,7 +142,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
 
     /**
      * Asynchronously fetches a list of all conversations for this user. When the download is
-     * complete, the updateConversations() method will be called to handle the changes.
+     * complete, the finishRefresh() method will be called to handle the changes.
      */
     private class ConversationDownloadTask extends AsyncTask<Void, Void, ArrayList<ConversationPreview>> {
 
@@ -138,7 +151,6 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
          */
         @Override
         protected ArrayList<ConversationPreview> doInBackground(Void... voids) {
-            mLoadingSpinner.setVisibility(View.VISIBLE);
             return NetworkHelper.getAllConversations(mListener.getUser(), getContext());
         }
 
@@ -148,8 +160,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
          */
         @Override
         protected void onPostExecute(ArrayList<ConversationPreview> conversations) {
-            mLoadingSpinner.setVisibility(View.INVISIBLE);
-            updateConversations(conversations);
+            finishRefresh(conversations);
         }
     }
 }
