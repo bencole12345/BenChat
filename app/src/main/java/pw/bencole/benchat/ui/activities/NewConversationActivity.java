@@ -64,11 +64,16 @@ public class NewConversationActivity extends AppCompatActivity {
         } else {
             switch (attempt.getFailureReason()) {
                 case NETWORK_ERROR:
-                    Toast.makeText(this, "Network error", Toast.LENGTH_SHORT);
+                    // TODO: Show a dialog
+                    Toast.makeText(this, "Network error", Toast.LENGTH_SHORT).show();
                     return;
                 case CONVERSATION_ALREADY_EXISTS:
-                    // Show a dialog, include button to go to that conversation that launches a ConversationActivity (the id is included in the response)
-                    Toast.makeText(this, "Conversation already exists!", Toast.LENGTH_SHORT);
+                    // TODO: Show a dialog, include button to go to that conversation that launches a ConversationActivity (the id is included in the response)
+                    Toast.makeText(this, "Conversation already exists!", Toast.LENGTH_SHORT).show();
+                    return;
+                case USER_NOT_FOUND:
+                    // TODO: Show a dialog for this
+                    Toast.makeText(this, "Username not found", Toast.LENGTH_SHORT).show();
             }
         }
     }

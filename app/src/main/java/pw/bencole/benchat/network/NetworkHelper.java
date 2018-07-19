@@ -242,6 +242,8 @@ public class NetworkHelper {
             if (response.code() == 201) {
                 JSONObject bodyParsed = new JSONObject(body.string());
                 return new ConversationCreationAttempt(true, bodyParsed.getString("_id"), FailureReason.NONE);
+            } else if (response.code() == 400) {
+                return new ConversationCreationAttempt(false, null, FailureReason.USER_NOT_FOUND);
             } else if (response.code() == 422) {
                 return new ConversationCreationAttempt(false, null, FailureReason.CONVERSATION_ALREADY_EXISTS);
             } else {
