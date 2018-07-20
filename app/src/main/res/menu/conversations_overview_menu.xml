@@ -3,6 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:title="Refresh"
+        android:id="@+id/refreshMenuItem"
+        android:icon="@drawable/baseline_refresh_black_24"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:title="@string/sign_out"
-        android:id="@+id/signOutMenuItem"/>
+        android:id="@+id/signOutMenuItem"
+        android:icon="@drawable/baseline_exit_to_app_black_24"
+        app:showAsAction="ifRoom"/>
 </menu>

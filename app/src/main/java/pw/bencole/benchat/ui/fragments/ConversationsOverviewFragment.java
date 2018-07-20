@@ -50,12 +50,6 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
     private OnConversationSelectedListener mListener;
 
     /**
-     * Tracks whether the list needs to be refreshed. Other activities/fragments can call
-     * requestRefresh() to instruct this fragment to refresh its list of conversations.
-     */
-    private boolean mNeedsRefresh;
-
-    /**
      * Ensures that the containing activity is able to provide a LoggedInUser instance so that
      * the relevant conversations can be downloaded, and has a handler method to be used when a
      * conversation is selected.
@@ -87,8 +81,6 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
         mAdapter = new ConversationPreviewAdapter(mListener.getUser(), getContext(), R.layout.listelement_conversation_overview, mConversations);
         mConversationsList.setAdapter(mAdapter);
 
-        mNeedsRefresh = true;
-
         return view;
     }
 
@@ -112,8 +104,9 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
     /**
      * Refreshes the list of conversations.
      */
-    private void refresh() {
+    public void refresh() {
         mLoadingSpinner.setVisibility(View.VISIBLE);
+        mAdapter.clear();
         new ConversationDownloadTask().execute();
     }
 
@@ -123,7 +116,6 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
      * @param conversations The new list of conversations to display
      */
     private void finishRefresh(ArrayList<ConversationPreview> conversations) {
-        mAdapter.clear();
         mAdapter.addAll(conversations);
         mLoadingSpinner.setVisibility(View.INVISIBLE);
     }
@@ -131,17 +123,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
     @Override
     public void onResume() {
         super.onResume();
-        if (mNeedsRefresh) {
-            refresh();
-            mNeedsRefresh = false;
-        }
-    }
-
-    /**
-     * Requests that this Fragment refreshes its list of conversations.
-     */
-    public void requestRefresh() {
-        mNeedsRefresh = true;
+        refresh();
     }
 
     /**

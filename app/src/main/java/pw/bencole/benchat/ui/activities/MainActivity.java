@@ -44,12 +44,6 @@ public class MainActivity extends AppCompatActivity
     private FrameLayout mPlaceholderFrame;
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        mConversationsOverviewFragment.requestRefresh();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUser = (LoggedInUser) getIntent().getExtras().get("user");
@@ -86,6 +80,10 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.signOutMenuItem:
                 signOut();
+                return true;
+            case R.id.refreshMenuItem:
+                refresh();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -122,6 +120,14 @@ public class MainActivity extends AppCompatActivity
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
         finish();
+    }
+
+    /**
+     * Refreshes the information displayed.
+     */
+    private void refresh() {
+        // TODO: Only refresh the active fragment
+        mConversationsOverviewFragment.refresh();
     }
 
     /**
