@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     tools:context="pw.bencole.benchat.ui.activities.MainActivity">
 
-    <fragment
-        android:id="@+id/allChatsFragment"
+    <FrameLayout
+        android:id="@+id/activeFragment"
         android:name="pw.bencole.benchat.ui.fragments.ConversationsOverviewFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
