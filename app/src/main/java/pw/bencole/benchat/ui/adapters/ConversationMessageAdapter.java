@@ -55,7 +55,7 @@ public class ConversationMessageAdapter extends ArrayAdapter<Message> {
 
         viewHolder.username.setText(message.getSender().getUsername());
         // TODO: Format as a proper timestamp
-        viewHolder.timestamp.setText(Long.toString(message.getTimestamp()));
+        viewHolder.timestamp.setText(message.getTimestamp());
         viewHolder.content.setText(message.getContent());
 
         return result;

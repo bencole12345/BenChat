@@ -215,7 +215,8 @@ public class NetworkHelper {
                 String messageContent = message.getString("content");
                 User sender = new User(authorName, authorId);
                 // TODO: Load the timestamp from the data and replace "i" below
-                messages.add(new Message(messageContent, sender, i));
+                String timestamp = message.getString("createdAt");
+                messages.add(new Message(messageContent, sender, timestamp));
             }
         } catch (IOException | NullPointerException | JSONException e) {
             e.printStackTrace();

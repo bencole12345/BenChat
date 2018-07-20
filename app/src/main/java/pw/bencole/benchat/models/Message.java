@@ -10,9 +10,9 @@ public class Message {
 
     private String mContent;
     private User mSender;
-    private long mTimestamp;
+    private String mTimestamp;
 
-    public Message(String content, User sender, long timestamp) {
+    public Message(String content, User sender, String timestamp) {
         mContent = content;
         mSender = sender;
         mTimestamp = timestamp;
@@ -31,7 +31,7 @@ public class Message {
         return mSender;
     }
 
-    public long getTimestamp() {
+    public String getTimestamp() {
         return mTimestamp;
     }
 }
