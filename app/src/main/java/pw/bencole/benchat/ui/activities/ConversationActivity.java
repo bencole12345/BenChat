@@ -107,6 +107,8 @@ public class ConversationActivity extends AppCompatActivity {
         mAdapter = new ConversationMessageAdapter(this, R.layout.listelement_conversation_message, new ArrayList<Message>(), mLoggedInUser);
         mConversationList.setAdapter(mAdapter);
 
+//        mConversationList.setDivider(null);
+
         refreshMessages();
     }
 

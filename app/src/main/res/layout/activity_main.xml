@@ -18,12 +18,12 @@
         android:id="@+id/bottomNavigationView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:menu="@menu/home_screen_menubar"
         app:itemBackground="@android:color/background_light"
         app:itemIconTint="@color/bottom_navigation_icons"
         app:itemTextColor="@color/bottom_navigation_icons"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/home_screen_menubar" />
 
 </android.support.constraint.ConstraintLayout>
