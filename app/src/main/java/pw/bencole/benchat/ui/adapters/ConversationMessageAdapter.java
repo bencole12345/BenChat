@@ -1,6 +1,7 @@
 package pw.bencole.benchat.ui.adapters;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,9 +65,14 @@ public class ConversationMessageAdapter extends ArrayAdapter<Message> {
         }
 
         viewHolder.username.setText(message.getSender().getUsername());
-        // TODO: Format as a nicer timestamp
-        viewHolder.timestamp.setText(message.getTimestamp());
         viewHolder.content.setText(message.getContent());
+
+        if (PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("show_timestamps", false)) {
+            // TODO: Format as a nicer timestamp
+            viewHolder.timestamp.setText(message.getTimestamp());
+        } else {
+            viewHolder.timestamp.setVisibility(View.INVISIBLE);
+        }
 
         if (message.getSender().getId().equals(mLoggedInUser.getId())) {
             viewHolder.username.setTextColor(mThisUserColour);

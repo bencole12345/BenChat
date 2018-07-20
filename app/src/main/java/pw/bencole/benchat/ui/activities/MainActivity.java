@@ -19,6 +19,7 @@ import pw.bencole.benchat.models.ConversationPreview;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.ui.fragments.ConversationsOverviewFragment;
 import pw.bencole.benchat.ui.fragments.FriendsListFragment;
+import pw.bencole.benchat.ui.fragments.SettingsFragment;
 import pw.bencole.benchat.util.LoginManager;
 
 
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity
     private BottomNavigationView mBottomNavigationView;
     private FriendsListFragment mFriendsListFragment;
     private ConversationsOverviewFragment mConversationsOverviewFragment;
-    private Fragment mSettingsFragment;
+    private SettingsFragment mSettingsFragment;
     private FrameLayout mPlaceholderFrame;
 
     @Override
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity
         mFriendsListFragment = new FriendsListFragment();
         mConversationsOverviewFragment = new ConversationsOverviewFragment();
         // TODO: Create a SettingsFragment
-        mSettingsFragment = new ConversationsOverviewFragment();
+        mSettingsFragment = new SettingsFragment();
         mPlaceholderFrame = findViewById(R.id.activeFragment);
 
         mBottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -105,7 +106,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.action_settings:
                 // TODO: Show settings fragment
-                switchFragment(mConversationsOverviewFragment);
+                switchFragment(mSettingsFragment);
                 setTitle("Settings");
                 break;
         }
