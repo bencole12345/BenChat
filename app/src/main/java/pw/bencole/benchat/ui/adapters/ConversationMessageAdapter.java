@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import pw.bencole.benchat.R;
+import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.Message;
 
 
@@ -30,8 +31,16 @@ public class ConversationMessageAdapter extends ArrayAdapter<Message> {
         TextView content;
     }
 
-    public ConversationMessageAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects) {
+    private LoggedInUser mLoggedInUser;
+    private int mThisUserColour;
+    private int mOtherUserColour;
+
+    public ConversationMessageAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects, LoggedInUser user) {
         super(context, resource, objects);
+        mLoggedInUser = user;
+
+        mThisUserColour = context.getColor(R.color.colorSecondaryDark);
+        mOtherUserColour = context.getColor(R.color.colorPrimaryDark);
     }
 
     @Override
@@ -57,6 +66,12 @@ public class ConversationMessageAdapter extends ArrayAdapter<Message> {
         // TODO: Format as a proper timestamp
         viewHolder.timestamp.setText(message.getTimestamp());
         viewHolder.content.setText(message.getContent());
+
+        if (message.getSender().getId().equals(mLoggedInUser.getId())) {
+            viewHolder.username.setTextColor(mThisUserColour);
+        } else {
+            viewHolder.username.setTextColor(mOtherUserColour);
+        }
 
         return result;
     }

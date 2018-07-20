@@ -104,7 +104,7 @@ public class ConversationActivity extends AppCompatActivity {
         });
 
         // Set the adaptor to display the list of messages
-        mAdapter = new ConversationMessageAdapter(this, R.layout.listelement_conversation_message, new ArrayList<Message>());
+        mAdapter = new ConversationMessageAdapter(this, R.layout.listelement_conversation_message, new ArrayList<Message>(), mLoggedInUser);
         mConversationList.setAdapter(mAdapter);
 
         refreshMessages();
