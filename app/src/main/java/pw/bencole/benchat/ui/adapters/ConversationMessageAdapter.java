@@ -39,7 +39,7 @@ public class ConversationMessageAdapter extends ArrayAdapter<Message> {
         super(context, resource, objects);
         mLoggedInUser = user;
 
-        mThisUserColour = context.getColor(R.color.colorSecondaryDark);
+        mThisUserColour = context.getColor(R.color.colorSecondary);
         mOtherUserColour = context.getColor(R.color.colorPrimaryDark);
     }
 
@@ -48,22 +48,23 @@ public class ConversationMessageAdapter extends ArrayAdapter<Message> {
 
         Message message = getItem(position);
 
+        ViewHolder viewHolder;
         final View result;
         if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             result = inflater.inflate(R.layout.listelement_conversation_message, parent, false);
+            viewHolder = new ViewHolder();
+            viewHolder.username = result.findViewById(R.id.usernameText);
+            viewHolder.timestamp = result.findViewById(R.id.timestampText);
+            viewHolder.content = result.findViewById(R.id.contentText);
+            result.setTag(viewHolder);
         } else {
             result = convertView;
+            viewHolder = (ViewHolder) result.getTag();
         }
 
-        // TODO: Do this properly! Currently the whole advantage of the ViewHolder patten is missed...
-        ViewHolder viewHolder = new ViewHolder();
-        viewHolder.username = result.findViewById(R.id.usernameText);
-        viewHolder.timestamp = result.findViewById(R.id.timestampText);
-        viewHolder.content = result.findViewById(R.id.contentText);
-
         viewHolder.username.setText(message.getSender().getUsername());
-        // TODO: Format as a proper timestamp
+        // TODO: Format as a nicer timestamp
         viewHolder.timestamp.setText(message.getTimestamp());
         viewHolder.content.setText(message.getContent());
 

@@ -42,19 +42,22 @@ public class ConversationPreviewAdapter extends ArrayAdapter<ConversationPreview
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ConversationPreview conversation = getItem(position);
-        ViewHolder viewHolder = new ViewHolder();
+        ViewHolder viewHolder;// = new ViewHolder();
 
         final View result;
 
         if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             result = inflater.inflate(R.layout.listelement_conversation_overview, parent, false);
+            viewHolder = new ViewHolder();
+            viewHolder.contactName = result.findViewById(R.id.contactNameTextView);
+            viewHolder.messagePreview = result.findViewById(R.id.messagePreviewTextView);
+            result.setTag(viewHolder);
         } else {
             result = convertView;
+            viewHolder = (ViewHolder) result.getTag();
         }
 
-        viewHolder.contactName = result.findViewById(R.id.contactNameTextView);
-        viewHolder.messagePreview = result.findViewById(R.id.messagePreviewTextView);
         viewHolder.contactName.setText(conversation.getConversationName());
         viewHolder.messagePreview.setText(conversation.getMessagePreview());
         return result;
