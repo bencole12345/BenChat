@@ -114,9 +114,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void switchFragment(Fragment targetFragment) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.activeFragment, targetFragment);
-        transaction.commit();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .replace(R.id.activeFragment, targetFragment)
+                .commit();
     }
 
     /**
