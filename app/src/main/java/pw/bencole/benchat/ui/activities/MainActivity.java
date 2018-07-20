@@ -1,14 +1,17 @@
 package pw.bencole.benchat.ui.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import pw.bencole.benchat.R;
@@ -79,7 +82,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.signOutMenuItem:
-                signOut();
+                showSignoutDialog();
                 return true;
             case R.id.refreshMenuItem:
                 refresh();
@@ -110,6 +113,29 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.activeFragment, targetFragment);
         transaction.commit();
+    }
+
+    /**
+     * Shows a dialog box asking the user whether they would like to sign out. If they accept,
+     * then the user will be signed out and the activity replaced with a LoginActivity.
+     */
+    private void showSignoutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Sign out")
+                .setMessage("Are you sure you want to sign out?")
+                .setPositiveButton("Sign out", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        signOut();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+        builder.create().show();
     }
 
     /**
