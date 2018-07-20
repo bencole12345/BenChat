@@ -97,13 +97,16 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.action_friends:
                 switchFragment(mFriendsListFragment);
+                setTitle("Friends");
                 break;
             case R.id.action_conversations:
                 switchFragment(mConversationsOverviewFragment);
+                setTitle("Conversations");
                 break;
             case R.id.action_settings:
                 // TODO: Show settings fragment
                 switchFragment(mConversationsOverviewFragment);
+                setTitle("Settings");
                 break;
         }
         return true;
