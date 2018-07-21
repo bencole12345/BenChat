@@ -5,14 +5,14 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.FrameLayout;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.ConversationPreview;
@@ -41,11 +41,17 @@ public class MainActivity extends AppCompatActivity
      */
     private LoggedInUser mUser;
 
+    /**
+     * References to UI elements
+     */
     private BottomNavigationView mBottomNavigationView;
+    private ViewPager mPager;
+
     private FriendsListFragment mFriendsListFragment;
     private ConversationsOverviewFragment mConversationsOverviewFragment;
     private SettingsFragment mSettingsFragment;
-    private FrameLayout mPlaceholderFrame;
+
+    private BottomNavigationPagerAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +59,22 @@ public class MainActivity extends AppCompatActivity
         mUser = (LoggedInUser) getIntent().getExtras().get("user");
         setContentView(R.layout.activity_main);
 
+        // Create exactly one instance of each fragment.
         mFriendsListFragment = new FriendsListFragment();
         mConversationsOverviewFragment = new ConversationsOverviewFragment();
-        // TODO: Create a SettingsFragment
         mSettingsFragment = new SettingsFragment();
-        mPlaceholderFrame = findViewById(R.id.activeFragment);
 
+        // Set up the view pager and adapter, passing references to the fragments to its
+        // constructor.
+        mPager = findViewById(R.id.pager);
+        mAdapter = new BottomNavigationPagerAdapter(getSupportFragmentManager(),
+                mFriendsListFragment,
+                mConversationsOverviewFragment,
+                mSettingsFragment
+        );
+        mPager.setAdapter(mAdapter);
+
+        // Hook up the BottomNavigationView's handler.
         mBottomNavigationView = findViewById(R.id.bottomNavigationView);
         mBottomNavigationView.setOnNavigationItemSelectedListener(this);
         mBottomNavigationView.setSelectedItemId(R.id.action_conversations);
@@ -97,28 +113,19 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_friends:
-                switchFragment(mFriendsListFragment);
+                mPager.setCurrentItem(0, false);
                 setTitle("Friends");
                 break;
             case R.id.action_conversations:
-                switchFragment(mConversationsOverviewFragment);
+                mPager.setCurrentItem(1, false);
                 setTitle("Conversations");
                 break;
             case R.id.action_settings:
-                // TODO: Show settings fragment
-                switchFragment(mSettingsFragment);
+                mPager.setCurrentItem(2, false);
                 setTitle("Settings");
                 break;
         }
         return true;
-    }
-
-    private void switchFragment(Fragment targetFragment) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .replace(R.id.activeFragment, targetFragment)
-                .commit();
     }
 
     /**
@@ -169,5 +176,50 @@ public class MainActivity extends AppCompatActivity
      */
     public LoggedInUser getUser() {
         return mUser;
+    }
+
+    /**
+     * Serves the correct Fragment to the ViewPager.
+     *
+     * No fragments are instantiated here: instead, they must be instantiated externally and the
+     * references be passed in. This way, this class can reference them, but at the same time,
+     * they can be accessed (eg refresh() called) externally.
+     */
+    private static class BottomNavigationPagerAdapter extends FragmentPagerAdapter {
+
+        /**
+         * References to external fragments
+         */
+        private FriendsListFragment mFriendsListFragment;
+        private ConversationsOverviewFragment mConversationsOverviewFragment;
+        private SettingsFragment mSettingsFragment;
+
+        public BottomNavigationPagerAdapter(FragmentManager fm, FriendsListFragment friendsListFragment,
+                                            ConversationsOverviewFragment conversationsOverviewFragment,
+                                            SettingsFragment settingsFragment) {
+            super(fm);
+            mFriendsListFragment = friendsListFragment;
+            mConversationsOverviewFragment = conversationsOverviewFragment;
+            mSettingsFragment = settingsFragment;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return mFriendsListFragment;
+                case 1:
+                    return mConversationsOverviewFragment;
+                case 2:
+                    return mSettingsFragment;
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
     }
 }
