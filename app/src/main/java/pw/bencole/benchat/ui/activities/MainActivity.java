@@ -20,6 +20,7 @@ import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.ui.fragments.ConversationsOverviewFragment;
 import pw.bencole.benchat.ui.fragments.FriendsListFragment;
 import pw.bencole.benchat.ui.fragments.SettingsFragment;
+import pw.bencole.benchat.ui.view.ToggleableSwipeViewPager;
 import pw.bencole.benchat.util.LoginManager;
 
 
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity
      * References to UI elements
      */
     private BottomNavigationView mBottomNavigationView;
-    private ViewPager mPager;
+    private ToggleableSwipeViewPager mPager;
 
     private FriendsListFragment mFriendsListFragment;
     private ConversationsOverviewFragment mConversationsOverviewFragment;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity
                 mSettingsFragment
         );
         mPager.setAdapter(mAdapter);
+        mPager.setAllowSwiping(false);
 
         // Hook up the BottomNavigationView's handler.
         mBottomNavigationView = findViewById(R.id.bottomNavigationView);
