@@ -266,7 +266,7 @@ public class NetworkHelper {
      * @return true if the operation was successful; false otherwise
      */
     public static boolean sendMessage(LoggedInUser user, Message message, String conversationID, Context context) {
-        JSONObject data = getUserJson(user.getUsername(), user.getPassword());
+        JSONObject data = getUserJson(user);
         try {
             data.put("messageContent", message.getContent());
             data.put("conversationId", conversationID);
