@@ -6,4 +6,8 @@
     <string name="get_messages_url">https://benchat-api.herokuapp.com/messages/view</string>
     <string name="create_conversation_url">https://benchat-api.herokuapp.com/conversations/new</string>
     <string name="get_conversations_url">https://benchat-api.herokuapp.com/conversations/all</string>
+    <string name="add_friend_url">https://benchat-api.herokuapp.com/friends/add</string>
+    <string name="get_all_friends_url">https://benchat-api.herokuapp.com/friends/all</string>
+    <string name="get_all_friend_requests_url">https://benchat-api.herokuapp.com/friends/all-requests</string>
+    <string name="respond_to_friend_request_url">https://benchat-api.herokuapp.com/friends/respond</string>
 </resources>
