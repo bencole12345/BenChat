@@ -279,4 +279,34 @@ public class NetworkHelper {
         }
     }
 
+    /**
+     * Finds all users that are friends with the currently logged in user.
+     *
+     * @param user The currently logged in user
+     * @param context The context from which the method is called
+     * @return A list of all Users that are friends with the logged in user
+     */
+    public static ArrayList<User> getAllFriends(LoggedInUser user, Context context) {
+        JSONObject data = getUserJson(user);
+        try {
+            String url = context.getResources().getString(R.string.get_all_friends_url);
+            Response response = postJson(url, data);
+            ResponseBody body = response.body();
+            if (response.code() == 200) {
+                JSONArray array = new JSONArray(body.string());
+                ArrayList<User> users = new ArrayList<>();
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject object = array.getJSONObject(i);
+                    String id = object.getString("_id");
+                    String username = object.getString("username");
+                    users.add(new User(username, id));
+                }
+                return users;
+            }
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

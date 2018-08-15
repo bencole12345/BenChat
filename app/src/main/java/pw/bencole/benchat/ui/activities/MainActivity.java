@@ -167,8 +167,13 @@ public class MainActivity extends AppCompatActivity
      * Refreshes the information displayed.
      */
     private void refresh() {
-        // TODO: Only refresh the active fragment
-        mConversationsOverviewFragment.refresh();
+        switch (mBottomNavigationView.getSelectedItemId()) {
+            case R.id.action_conversations:
+                mConversationsOverviewFragment.refresh();
+                return;
+            case R.id.action_friends:
+                mFriendsListFragment.refresh();
+        }
     }
 
     /**
