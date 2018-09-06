@@ -86,12 +86,9 @@ public class FriendsListFragment extends Fragment {
         new FriendListDownloadTask().execute();
     }
 
-    /**
-     * Serves rows to the RecyclerView
-     */
-    private static class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.ViewHolder> {
+    private class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.ViewHolder> {
 
-        public static class ViewHolder extends RecyclerView.ViewHolder {
+        public class ViewHolder extends RecyclerView.ViewHolder {
 
             public TextView usernameText;
 

@@ -30,7 +30,7 @@ public class ConversationPreviewAdapter extends ArrayAdapter<ConversationPreview
      * Stores references to UI elements to reduce the number of findViewById() calls made
      */
     private static class ViewHolder {
-        TextView contactName;
+        TextView conversationName;
         TextView messagePreview;
     }
 
@@ -50,7 +50,7 @@ public class ConversationPreviewAdapter extends ArrayAdapter<ConversationPreview
             LayoutInflater inflater = LayoutInflater.from(getContext());
             result = inflater.inflate(R.layout.listelement_conversation_overview, parent, false);
             viewHolder = new ViewHolder();
-            viewHolder.contactName = result.findViewById(R.id.contactNameTextView);
+            viewHolder.conversationName = result.findViewById(R.id.conversationNameTextView);
             viewHolder.messagePreview = result.findViewById(R.id.messagePreviewTextView);
             result.setTag(viewHolder);
         } else {
@@ -58,7 +58,7 @@ public class ConversationPreviewAdapter extends ArrayAdapter<ConversationPreview
             viewHolder = (ViewHolder) result.getTag();
         }
 
-        viewHolder.contactName.setText(conversation.getConversationName());
+        viewHolder.conversationName.setText(conversation.getConversationName());
         viewHolder.messagePreview.setText(conversation.getMessagePreview());
         return result;
     }

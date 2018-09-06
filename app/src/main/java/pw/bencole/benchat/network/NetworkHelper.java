@@ -10,6 +10,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -53,29 +55,20 @@ public class NetworkHelper {
     }
 
     /**
-     * Creates a JSONObject containing the passed username and password.
+     * Creates a JSONObject containing the username, password and id of the passed LoggedInUser.
      *
-     * @param username The username attribute
-     * @param password The password attribute
-     * @return A JSONObject with the username and password attributes set
+     * @param user The currently logged in user
+     * @return The user's username, password and id formatted as a JSONObject
      */
-    private static JSONObject getUserJson(String username, String password) {
-        JSONObject user = new JSONObject();
-        try {
-            user.put("username", username);
-            user.put("password", password);
-            return user;
-        } catch (JSONException e) {
-            return null;
-        }
-    }
-
     private static JSONObject getUserJson(LoggedInUser user) {
         JSONObject data = new JSONObject();
         try {
-            data.put("username", user.getUsername());
-            data.put("password", user.getPassword());
-            data.put("_id", user.getId());
+            if (user.getUsername() != null)
+                data.put("username", user.getUsername());
+            if (user.getPassword() != null)
+                data.put("password", user.getPassword());
+            if (user.getId() != null)
+                data.put("_id", user.getId());
         } catch (JSONException e) {
             data = null;
         }
@@ -92,7 +85,7 @@ public class NetworkHelper {
      *         LoggedInUser object if the login was successful
      */
     public static LoginAttempt login(String username, String password, Context context) {
-        JSONObject data = getUserJson(username, password);
+        JSONObject data = getUserJson(new LoggedInUser(username, password, null));
         LoginAttempt loginAttempt = null;
         try {
             String loginURL = context.getResources().getString(R.string.login_url);
@@ -105,6 +98,8 @@ public class NetworkHelper {
                 loginAttempt = new LoginAttempt(true, user, FailureReason.NONE);
             } else if (response.code() == 401) {
                 loginAttempt = new LoginAttempt(false, null, FailureReason.INVALID_CREDENTIALS);
+            } else {
+                loginAttempt = new LoginAttempt(false, null, FailureReason.NETWORK_ERROR);
             }
         } catch (IOException | NullPointerException | JSONException e) {
             e.printStackTrace();
@@ -123,7 +118,7 @@ public class NetworkHelper {
      *         FailureReason otherwise
      */
     public static LoginAttempt signup(String username, String password, Context context) {
-        JSONObject data = getUserJson(username, password);
+        JSONObject data = getUserJson(new LoggedInUser(username, password, null));
         LoginAttempt loginAttempt = null;
         try {
             String signupURL = context.getResources().getString(R.string.signup_url);
@@ -170,8 +165,7 @@ public class NetworkHelper {
                         String username = participant.getString("username");
                         String userId = participant.getString("_id");
                         participantsSet.add(new User(username, userId));
-                        // TODO: Modify API to actually store a conversation name
-                        if (!userId.equals(user.getId())) conversationName = username;
+                        conversationName = json.getString("name");
                     }
 
                     // TODO: Modify the API so you don't have to do this
@@ -225,32 +219,35 @@ public class NetworkHelper {
     }
 
     /**
-     * Attempts to create a new conversation with the other user, and uses a
-     * ConversationCreationAttempt object to convey the result.
+     * Attempts to create a new conversation featuring the logged in user, as well as all users
+     * in otherUsers.
      *
-     * @param user The logged in user
-     * @param otherUsername The username of the other participant in this conversation
+     * @param otherUsers The Set of other users in this conversation
+     * @param conversationName The name to be used for the conversation
      * @param context The context from which the method is called
-     * @return A ConversationCreatingAttempt containing the result of the operation
+     * @return A ConversationCreationAttempt containing the result of the operation
      */
-    public static ConversationCreationAttempt createConversation(LoggedInUser user, String otherUsername, Context context) {
+    public static ConversationCreationAttempt createConversation(LoggedInUser user, Set<User> otherUsers, String conversationName, Context context) {
         JSONObject data = getUserJson(user);
         try {
-            data.put("otherUsername", otherUsername);
+            LinkedList<String> otherUserIDs = new LinkedList<>();
+            for (User otherUser : otherUsers) {
+                otherUserIDs.add(otherUser.getId());
+            }
+            data.put("otherUsers", new JSONArray(otherUserIDs));
+            data.put("conversationName", conversationName);
             String url = context.getResources().getString(R.string.create_conversation_url);
             Response response = postJson(url, data);
             ResponseBody body = response.body();
             if (response.code() == 201) {
                 JSONObject bodyParsed = new JSONObject(body.string());
                 return new ConversationCreationAttempt(true, bodyParsed.getString("_id"), FailureReason.NONE);
-            } else if (response.code() == 400) {
-                return new ConversationCreationAttempt(false, null, FailureReason.USER_NOT_FOUND);
             } else if (response.code() == 422) {
                 return new ConversationCreationAttempt(false, null, FailureReason.CONVERSATION_ALREADY_EXISTS);
             } else {
                 return new ConversationCreationAttempt(false, null, FailureReason.NETWORK_ERROR);
             }
-        } catch (IOException | NullPointerException | JSONException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
             return new ConversationCreationAttempt(false, null, FailureReason.NETWORK_ERROR);
         }

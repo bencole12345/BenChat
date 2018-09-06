@@ -7,7 +7,7 @@
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/contactNameTextView"
+        android:id="@+id/conversationNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
@@ -23,5 +23,5 @@
         android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/contactNameTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/conversationNameTextView" />
 </android.support.constraint.ConstraintLayout>

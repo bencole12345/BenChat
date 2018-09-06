@@ -34,7 +34,7 @@ public class LoginManager {
      * Checks whether the user has previously logged in when they last used the app, in which case
      * they should not be taken to the login screen again.
      *
-     * @return true if there are already username and password details saved from last time; false
+     * @return true if there are already usernameCheckedText and password details saved from last time; false
      *         otherwise
      */
     public static boolean getIsLoggedIn(Context context) {
