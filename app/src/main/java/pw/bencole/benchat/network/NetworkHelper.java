@@ -368,4 +368,32 @@ public class NetworkHelper {
         return result;
     }
 
+    /**
+     * Responds to a friend request.
+     *
+     * @param user The logged in user
+     * @param request The request to respond to
+     * @param accept Whether to accept (vs deny) the request
+     * @param context The Context from which the method is called
+     * @return true if the response was successful; false otherwise
+     */
+    public static boolean respondToFriendRequest(LoggedInUser user, FriendRequest request, boolean accept, Context context) {
+        JSONObject data = getUserJson(user);
+        String url = context.getResources().getString(R.string.respond_to_friend_request_url);
+        try {
+            data.put("friendRequestId", request.getRequestId());
+            Response response = postJson(url, data);
+//            ResponseBody body = response.body();
+//            if (response.code() == 200) {
+//                return true;
+//            } else {
+//                return false;
+//            }
+            return (response.code() == 200);
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

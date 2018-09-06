@@ -9,7 +9,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +21,6 @@ import java.util.Map;
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.FriendRequest;
 import pw.bencole.benchat.models.LoggedInUser;
-import pw.bencole.benchat.models.User;
 import pw.bencole.benchat.network.NetworkHelper;
 
 /**
@@ -64,8 +66,25 @@ public class FriendRequestsFragment extends Fragment {
         return view;
     }
 
-    public void refresh(){
+    public void refresh() {
+        // TODO: display progress bar
         new FriendRequestDownloadTask().execute();
+    }
+
+    /**
+     * Handles the result of the attempted accept/decline of a friend request.
+     *
+     * If the operation was successful then the friend list will be refreshed. Otherwise, a
+     * message indicating that there was a network error will be displayed.
+     *
+     * @param success Whether the operation was successful
+     */
+    private void handleAcceptanceAttempt(Boolean success) {
+        if (success) {
+            refresh();
+        } else {
+            Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -91,13 +110,13 @@ public class FriendRequestsFragment extends Fragment {
             mElements.add(new HeaderElement("Received requests"));
         }
         for (FriendRequest request : receivedRequests) {
-            mElements.add(new ReceivedRequestElement(request));
+            mElements.add(new ReceivedFriendRequestElement(request));
         }
         if (sentRequests.size() > 0) {
             mElements.add(new HeaderElement("Sent requests"));
         }
         for (FriendRequest request : sentRequests) {
-            mElements.add(new SentRequestElement(request));
+            mElements.add(new SentFriendRequestElement(request));
         }
 
         mAdapter.notifyDataSetChanged();
@@ -156,9 +175,9 @@ public class FriendRequestsFragment extends Fragment {
     /**
      * A person that sent a friend request to the logged in user
      */
-    private class ReceivedRequestElement extends FriendElement {
+    private class ReceivedFriendRequestElement extends FriendElement {
 
-        public ReceivedRequestElement(FriendRequest friendRequest) {
+        public ReceivedFriendRequestElement(FriendRequest friendRequest) {
             super(friendRequest);
         }
 
@@ -170,9 +189,9 @@ public class FriendRequestsFragment extends Fragment {
     /**
      * A person to whom the logged in user sent a friend request
      */
-    private class SentRequestElement extends FriendElement {
+    private class SentFriendRequestElement extends FriendElement {
 
-        public SentRequestElement(FriendRequest friendRequest) {
+        public SentFriendRequestElement(FriendRequest friendRequest) {
             super(friendRequest);
         }
 
@@ -184,7 +203,7 @@ public class FriendRequestsFragment extends Fragment {
     /**
      * ViewHolder for header objects
      */
-    private class HeaderViewHolder extends RecyclerView.ViewHolder {
+    private static class HeaderViewHolder extends RecyclerView.ViewHolder {
 
         private TextView mTextView;
 
@@ -199,29 +218,84 @@ public class FriendRequestsFragment extends Fragment {
     }
 
     /**
-     * Alternate ViewHolder for friend objects
+     * ViewHolder for received friend requests
      */
-    private class FriendViewHolder extends RecyclerView.ViewHolder {
+    private static class ReceivedFriendRequestViewHolder extends RecyclerView.ViewHolder
+                                                  implements View.OnClickListener {
 
-        public TextView usernameText;
-        // TODO: reference ImageView for profile picture
+        ImageView profilePictureImageView;
+        TextView usernameText;
+        Button confirmButton;
+        Button declineButton;
 
-        public FriendViewHolder(View itemView) {
+        ReceivedFriendRequestClickListener listener;
+
+        public ReceivedFriendRequestViewHolder(View itemView, ReceivedFriendRequestClickListener listener) {
             super(itemView);
             usernameText = itemView.findViewById(R.id.usernameTextView);
+            confirmButton = itemView.findViewById(R.id.confirmButton);
+            declineButton = itemView.findViewById(R.id.declineButton);
+            profilePictureImageView = itemView.findViewById(R.id.profilePicture);
+
+            this.listener = listener;
+            confirmButton.setOnClickListener(this);
+            declineButton.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.confirmButton:
+                    listener.confirm(this.getLayoutPosition());
+                    break;
+                case R.id.declineButton:
+                    listener.decline(this.getLayoutPosition());
+            }
+        }
+
+        public interface ReceivedFriendRequestClickListener {
+            void confirm(int position);
+            void decline(int position);
+        }
+    }
+
+    /**
+     * ViewHolder for sent friend requests
+     */
+    private static class SentFriendRequestViewHolder extends RecyclerView.ViewHolder
+                                                     implements View.OnClickListener {
+
+        ImageView profilePictureImageView;
+        TextView usernameText;
+        Button cancelButton;
+
+        SentFriendRequestClickListener listener;
+
+        public SentFriendRequestViewHolder(View itemView, SentFriendRequestClickListener listener) {
+            super(itemView);
+            usernameText = itemView.findViewById(R.id.usernameTextView);
+            cancelButton = itemView.findViewById(R.id.cancelButton);
+            profilePictureImageView = itemView.findViewById(R.id.profilePicture);
+
+            this.listener = listener;
+            cancelButton.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            if (view.getId() == R.id.cancelButton) {
+                listener.cancel(this.getLayoutPosition());
+            }
+        }
+
+        public interface SentFriendRequestClickListener {
+            void cancel(int position);
         }
     }
 
     private class FriendRequestListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private ArrayList<FriendRequestListElement> mItems;
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-
-            public ViewHolder(View itemView) {
-                super(itemView);
-            }
-        }
 
         public FriendRequestListAdapter(ArrayList<FriendRequestListElement> items) {
             mItems = items;
@@ -239,31 +313,58 @@ public class FriendRequestsFragment extends Fragment {
                     break;
                 case FriendRequestListElement.TYPE_RECEIVED_REQUEST:
                     itemView = inflater.inflate(R.layout.listelement_friend_request_accept_or_decline, parent, false);
-                    viewHolder = new FriendViewHolder(itemView);
+                    viewHolder = new ReceivedFriendRequestViewHolder(itemView, new ReceivedFriendRequestViewHolder.ReceivedFriendRequestClickListener() {
+                        @Override
+                        public void confirm(int position) {
+                            // TODO: fill this in
+                            Toast.makeText(getContext(), "confirming request in position " + position, Toast.LENGTH_SHORT).show();
+                        }
+                        @Override
+                        public void decline(int position) {
+                            // TODO: fill this in
+                            Toast.makeText(getContext(), "declining request in position " + position, Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     break;
                 case FriendRequestListElement.TYPE_SENT_REQUEST:
                     itemView = inflater.inflate(R.layout.listelement_friend_request_awaiting, parent, false);
-                    viewHolder = new FriendViewHolder(itemView);
+                    viewHolder = new SentFriendRequestViewHolder(itemView, new SentFriendRequestViewHolder.SentFriendRequestClickListener() {
+                        @Override
+                        public void cancel(int position) {
+                            // TODO: fill this in
+                            Toast.makeText(getContext(), "cancelling request in position " + position, Toast.LENGTH_SHORT).show();
+                        }
+                    });
             }
             return viewHolder;
         }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            String username;
             int type = getItemViewType(position);
             switch (type) {
+
                 case FriendRequestListElement.TYPE_HEADER:
                     HeaderElement header = (HeaderElement) mItems.get(position);
                     HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
                     headerViewHolder.mTextView.setText(header.getText());
                     break;
+
                 case FriendRequestListElement.TYPE_RECEIVED_REQUEST:
-                case FriendRequestListElement.TYPE_SENT_REQUEST:
-                    FriendElement friendElement = (FriendElement) mItems.get(position);
-                    FriendViewHolder friendViewHolder = (FriendViewHolder) holder;
-                    String username = friendElement.getFriendRequest().getUser().getUsername();
-                    friendViewHolder.usernameText.setText(username);
+                    ReceivedFriendRequestElement receivedFriendRequestElement = (ReceivedFriendRequestElement) mItems.get(position);
+                    ReceivedFriendRequestViewHolder receivedFriendRequestViewHolder = (ReceivedFriendRequestViewHolder) holder;
+                    username = receivedFriendRequestElement.getFriendRequest().getUser().getUsername();
+                    receivedFriendRequestViewHolder.usernameText.setText(username);
+                    // TODO: set profile picture?
                     break;
+
+                case FriendRequestListElement.TYPE_SENT_REQUEST:
+                    SentFriendRequestElement sentFriendRequestElement = (SentFriendRequestElement) mItems.get(position);
+                    SentFriendRequestViewHolder sentFriendRequestViewHolder = (SentFriendRequestViewHolder) holder;
+                    username = sentFriendRequestElement.getFriendRequest().getUser().getUsername();
+                    sentFriendRequestViewHolder.usernameText.setText(username);
+                    // TODO: set profile picture?
             }
         }
 
@@ -291,6 +392,25 @@ public class FriendRequestsFragment extends Fragment {
         @Override
         protected void onPostExecute(Map<String, List<FriendRequest>> stringListMap) {
             updateDisplayedItems(stringListMap);
+        }
+    }
+
+    private class AcceptOrDeclineTask extends AsyncTask<AcceptOrDeclineTask.FriendRequestResponse, Void, Boolean> {
+
+        public class FriendRequestResponse {
+            public FriendRequest request;
+            public boolean accept;
+        }
+
+        @Override
+        protected Boolean doInBackground(FriendRequestResponse... friendRequestResponses) {
+            FriendRequestResponse response = friendRequestResponses[0];  // All of this is really dirty lol
+            return NetworkHelper.respondToFriendRequest(mUser, response.request, response.accept, getContext());
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            handleAcceptanceAttempt(success);
         }
     }
 
