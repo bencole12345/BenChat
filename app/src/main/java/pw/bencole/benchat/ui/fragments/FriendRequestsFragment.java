@@ -242,7 +242,7 @@ public class FriendRequestsFragment extends Fragment {
                     viewHolder = new FriendViewHolder(itemView);
                     break;
                 case FriendRequestListElement.TYPE_SENT_REQUEST:
-                    itemView = inflater.inflate(R.layout.listelement_friend, parent, false);
+                    itemView = inflater.inflate(R.layout.listelement_friend_request_awaiting, parent, false);
                     viewHolder = new FriendViewHolder(itemView);
             }
             return viewHolder;

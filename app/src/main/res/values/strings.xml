@@ -35,4 +35,5 @@
     <string name="friends">Friends</string>
     <string name="confirm">Confirm</string>
     <string name="decline">Decline</string>
+    <string name="cancel">Cancel</string>
 </resources>
