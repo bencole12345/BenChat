@@ -31,4 +31,8 @@
     <string name="conversation_name_hint">Conversation name</string>
     <string name="what_conversation_called">What should the conversation be called?</string>
     <string name="select_conversation_participants">Select participants</string>
+    <string name="requests">Requests</string>
+    <string name="friends">Friends</string>
+    <string name="confirm">Confirm</string>
+    <string name="decline">Decline</string>
 </resources>

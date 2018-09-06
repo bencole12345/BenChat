@@ -159,7 +159,7 @@ public class NewConversationActivity extends AppCompatActivity {
     /**
      * Adapts an array of User objects into the ListView for the list of friends.
      */
-    public static class FriendListAdapter extends ArrayAdapter<User> {
+    private static class FriendListAdapter extends ArrayAdapter<User> {
 
         private static class ViewHolder {
             public CheckedTextView usernameCheckedText;

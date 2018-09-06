@@ -9,8 +9,11 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import okhttp3.MediaType;
@@ -21,6 +24,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.ConversationPreview;
+import pw.bencole.benchat.models.FriendRequest;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.Message;
 import pw.bencole.benchat.models.User;
@@ -304,6 +308,64 @@ public class NetworkHelper {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Finds everyone that has either sent a friend request to the user, or received one from them,
+     * that has not yet been accepted or declined.
+     *
+     * A map is used to encode the result. There will be two keys: "sent" and "received". Each of
+     * these points to a list of FriendRequest objects.
+     *
+     * @param user The currently logged in user
+     * @param context The context from which the method is called
+     * @return A map to encode the list of sent friend requests and the list of received friend
+     *         requests
+     */
+    public static Map<String, List<FriendRequest>> getAllRequests(LoggedInUser user, Context context) {
+        JSONObject data = getUserJson(user);
+        Map<String, List<FriendRequest>> result = new HashMap<>();
+        result.put("sent", new ArrayList<FriendRequest>());
+        result.put("received", new ArrayList<FriendRequest>());
+        try {
+            String url = context.getResources().getString(R.string.get_all_friend_requests_url);
+            Response response = postJson(url, data);
+            ResponseBody body = response.body();
+            if (response.code() == 200) {
+
+                JSONObject json = new JSONObject(body.string());
+                JSONArray sentArray = json.getJSONArray("sent");
+                JSONArray receivedArray = json.getJSONArray("received");
+
+                // Traverse sent requests
+                for (int i = 0; i < sentArray.length(); i++) {
+                    JSONObject sentRequest = sentArray.getJSONObject(i);
+                    String requestId = sentRequest.getString("_id");
+                    JSONObject personSentTo = sentRequest.getJSONObject("sentTo");
+                    User userSentTo = new User(
+                            personSentTo.getString("username"),
+                            personSentTo.getString("_id"));
+                    result.get("sent").add(new FriendRequest(userSentTo, false, requestId));
+                }
+
+                // Traverse received requests
+                for (int i = 0; i < receivedArray.length(); i++) {
+                    JSONObject receivedRequest = receivedArray.getJSONObject(i);
+                    String requestId = receivedRequest.getString("_id");
+                    JSONObject personSentFrom = receivedRequest.getJSONObject("sentFrom");
+                    User userSentFrom = new User(
+                            personSentFrom.getString("username"),
+                            personSentFrom.getString("_id")
+                    );
+                    result.get("received").add(new FriendRequest(userSentFrom, true, requestId));
+                }
+            }
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return result;
     }
 
 }

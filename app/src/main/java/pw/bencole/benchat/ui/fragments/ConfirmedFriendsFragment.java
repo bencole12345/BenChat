@@ -1,6 +1,6 @@
 package pw.bencole.benchat.ui.fragments;
 
-import android.content.Context;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,41 +20,32 @@ import pw.bencole.benchat.network.NetworkHelper;
 
 
 /**
- * Displays a list of friends.
- *
- * Any activity containing this fragment must implement FriendListInteractionListener.
+ * A Fragment that displays a scrollable list of all friends.
  *
  * @author Ben Cole
  */
-public class FriendsListFragment extends Fragment {
+public class ConfirmedFriendsFragment extends Fragment {
 
-    /**
-     * Reference to the RecyclerView used to display the list of friends.
-     */
-    private RecyclerView mRecyclerView;
-
-    /**
-     * References to UI elements
-     */
-    private FriendListAdapter mAdapter;
-
-    /**
-     * List of currently known friends
-     */
+    private LoggedInUser mUser;
     private ArrayList<User> mFriends;
 
-    /**
-     * Interface to ensure that the containing activity has a getUser() method
-     */
-    private FriendListInteractionListener mListener;
-    public interface FriendListInteractionListener {
-        LoggedInUser getUser();
+    private RecyclerView mRecyclerView;
+    private FriendListAdapter mAdapter;
+
+    public ConfirmedFriendsFragment() {
+        // Required empty public constructor
     }
 
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_friends_list, container, false);
-        mRecyclerView = view.findViewById(R.id.recyclerView);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_confirmed_friends, container, false);
+
+        mUser = (LoggedInUser) getArguments().get("user");
+
+        mRecyclerView = view.findViewById(R.id.confirmedFriendsList);
         mRecyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
@@ -62,28 +53,8 @@ public class FriendsListFragment extends Fragment {
         mAdapter = new FriendListAdapter(mFriends);
         mRecyclerView.setAdapter(mAdapter);
         refresh();
+
         return view;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof FriendListInteractionListener) {
-            mListener = (FriendListInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement FriendListInteractionListener.");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    public void refresh() {
-        new FriendListDownloadTask().execute();
     }
 
     private class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.ViewHolder> {
@@ -123,6 +94,11 @@ public class FriendsListFragment extends Fragment {
         }
     }
 
+
+    public void refresh() {
+        new FriendListDownloadTask().execute();
+    }
+
     /**
      * Handles downloading the friends list.
      */
@@ -130,7 +106,7 @@ public class FriendsListFragment extends Fragment {
 
         @Override
         protected ArrayList<User> doInBackground(Void... voids) {
-            return NetworkHelper.getAllFriends(mListener.getUser(), getContext());
+            return NetworkHelper.getAllFriends(mUser, getContext());
         }
 
         @Override
@@ -140,5 +116,6 @@ public class FriendsListFragment extends Fragment {
             mAdapter.notifyDataSetChanged();
         }
     }
+
 
 }

@@ -7,7 +7,6 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,7 +17,7 @@ import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.ConversationPreview;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.ui.fragments.ConversationsOverviewFragment;
-import pw.bencole.benchat.ui.fragments.FriendsListFragment;
+import pw.bencole.benchat.ui.fragments.FriendsFragment;
 import pw.bencole.benchat.ui.fragments.SettingsFragment;
 import pw.bencole.benchat.ui.view.ToggleableSwipeViewPager;
 import pw.bencole.benchat.util.LoginManager;
@@ -34,7 +33,6 @@ import pw.bencole.benchat.util.LoginManager;
  */
 public class MainActivity extends AppCompatActivity
         implements ConversationsOverviewFragment.OnConversationSelectedListener,
-                   FriendsListFragment.FriendListInteractionListener,
                    BottomNavigationView.OnNavigationItemSelectedListener {
 
     /**
@@ -48,7 +46,7 @@ public class MainActivity extends AppCompatActivity
     private BottomNavigationView mBottomNavigationView;
     private ToggleableSwipeViewPager mPager;
 
-    private FriendsListFragment mFriendsListFragment;
+    private FriendsFragment mFriendsFragment;
     private ConversationsOverviewFragment mConversationsOverviewFragment;
     private SettingsFragment mSettingsFragment;
 
@@ -60,16 +58,22 @@ public class MainActivity extends AppCompatActivity
         mUser = (LoggedInUser) getIntent().getExtras().get("user");
         setContentView(R.layout.activity_main);
 
+        // Create a Bundle so that the logged in user can be passed to the fragments.
+        Bundle fragmentArguments = new Bundle();
+        fragmentArguments.putSerializable("user", mUser);
+
         // Create exactly one instance of each fragment.
-        mFriendsListFragment = new FriendsListFragment();
+        mFriendsFragment = new FriendsFragment();
+        mFriendsFragment.setArguments(fragmentArguments);
         mConversationsOverviewFragment = new ConversationsOverviewFragment();
+        mConversationsOverviewFragment.setArguments(fragmentArguments);
         mSettingsFragment = new SettingsFragment();
 
         // Set up the view pager and adapter, passing references to the fragments to its
         // constructor.
         mPager = findViewById(R.id.pager);
         mAdapter = new BottomNavigationPagerAdapter(getSupportFragmentManager(),
-                mFriendsListFragment,
+                mFriendsFragment,
                 mConversationsOverviewFragment,
                 mSettingsFragment
         );
@@ -172,7 +176,7 @@ public class MainActivity extends AppCompatActivity
                 mConversationsOverviewFragment.refresh();
                 return;
             case R.id.action_friends:
-                mFriendsListFragment.refresh();
+                mFriendsFragment.refresh();
         }
     }
 
@@ -197,15 +201,15 @@ public class MainActivity extends AppCompatActivity
         /**
          * References to external fragments
          */
-        private FriendsListFragment mFriendsListFragment;
+        private FriendsFragment mFriendsFragment;
         private ConversationsOverviewFragment mConversationsOverviewFragment;
         private SettingsFragment mSettingsFragment;
 
-        public BottomNavigationPagerAdapter(FragmentManager fm, FriendsListFragment friendsListFragment,
+        public BottomNavigationPagerAdapter(FragmentManager fm, FriendsFragment friendsFragment,
                                             ConversationsOverviewFragment conversationsOverviewFragment,
                                             SettingsFragment settingsFragment) {
             super(fm);
-            mFriendsListFragment = friendsListFragment;
+            mFriendsFragment = friendsFragment;
             mConversationsOverviewFragment = conversationsOverviewFragment;
             mSettingsFragment = settingsFragment;
         }
@@ -214,7 +218,7 @@ public class MainActivity extends AppCompatActivity
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return mFriendsListFragment;
+                    return mFriendsFragment;
                 case 1:
                     return mConversationsOverviewFragment;
                 case 2:
