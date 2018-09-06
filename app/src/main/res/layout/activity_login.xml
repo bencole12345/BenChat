@@ -6,13 +6,6 @@
     android:layout_height="match_parent"
     tools:context="pw.bencole.benchat.ui.activities.LoginActivity">
 
-    <!--<fragment-->
-        <!--android:name="pw.bencole.benchat.ui.fragments.LoginFragment"-->
-        <!--android:id="@+id/loginFragment"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent" />-->
-
-
     <android.support.v4.view.ViewPager
         android:id="@+id/loginViewPager"
         android:layout_width="0dp"
