@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -53,6 +54,11 @@ public class NewConversationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_conversation);
 
+        // Display a back button in the action bar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         mLoggedInUser = (LoggedInUser) getIntent().getExtras().get("user");
         mSelectedParticipants = new HashSet<>();
 
@@ -83,6 +89,15 @@ public class NewConversationActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    /**
+     * Ends the Activity when the back button in the action bar is clicked.
+     */
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     /**

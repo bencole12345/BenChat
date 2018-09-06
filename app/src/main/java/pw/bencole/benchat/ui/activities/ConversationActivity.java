@@ -65,6 +65,11 @@ public class ConversationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
 
+        // Display a back button in the action bar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         // Unpack the users passed to this activity
         mLoggedInUser = (LoggedInUser) getIntent().getExtras().get(CONVERSATION_THIS_USER);
         mConversationId = getIntent().getExtras().getString(CONVERSATION_ID);
@@ -110,6 +115,15 @@ public class ConversationActivity extends AppCompatActivity {
 //        mConversationList.setDivider(null);
 
         refreshMessages();
+    }
+
+    /**
+     * Ends the Activity when the back button in the action bar is clicked.
+     */
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     /**
