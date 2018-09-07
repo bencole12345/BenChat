@@ -240,8 +240,8 @@ public class NewConversationActivity extends AppCompatActivity {
 
         @Override
         protected ConversationCreationAttempt doInBackground(Void... voids) {
-            String conversationName = mConversationNameField.getText().toString();
-            return NetworkHelper.createConversation(mLoggedInUser, getConversationParticipants(), conversationName, getApplicationContext());
+//            String conversationName = mConversationNameField.getText().toString();
+            return NetworkHelper.createConversation(mLoggedInUser, getConversationParticipants(), getApplicationContext());
         }
 
         @Override

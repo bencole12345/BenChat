@@ -14,7 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.ConversationPreview;
+import pw.bencole.benchat.models.Conversation;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.ui.fragments.ConversationsOverviewFragment;
 import pw.bencole.benchat.ui.fragments.FriendsFragment;
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onConversationSelected(ConversationPreview conversation) {
+    public void onConversationSelected(Conversation conversation) {
         Intent conversationIntent = new Intent(this, ConversationActivity.class);
         conversationIntent.putExtra(ConversationActivity.CONVERSATION_THIS_USER, mUser);
         conversationIntent.putExtra(ConversationActivity.CONVERSATION_ID, conversation.getId());

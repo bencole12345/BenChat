@@ -11,15 +11,15 @@ import android.widget.TextView;
 import java.util.List;
 
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.ConversationPreview;
+import pw.bencole.benchat.models.Conversation;
 import pw.bencole.benchat.models.LoggedInUser;
 
 /**
- * Populates the conversations overview list using an ArrayList of ConversationPreview objects.
+ * Populates the conversations overview list using an ArrayList of Conversation objects.
  *
  * @author Ben Cole
  */
-public class ConversationPreviewAdapter extends ArrayAdapter<ConversationPreview> {
+public class ConversationPreviewAdapter extends ArrayAdapter<Conversation> {
 
     /**
      * Reference to the current logged in user
@@ -34,14 +34,14 @@ public class ConversationPreviewAdapter extends ArrayAdapter<ConversationPreview
         TextView messagePreview;
     }
 
-    public ConversationPreviewAdapter(LoggedInUser user, @NonNull Context context, int resource, @NonNull List<ConversationPreview> objects) {
+    public ConversationPreviewAdapter(LoggedInUser user, @NonNull Context context, int resource, @NonNull List<Conversation> objects) {
         super(context, resource, objects);
         mUser = user;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ConversationPreview conversation = getItem(position);
+        Conversation conversation = getItem(position);
         ViewHolder viewHolder;// = new ViewHolder();
 
         final View result;

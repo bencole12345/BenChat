@@ -1,6 +1,8 @@
 package pw.bencole.benchat.models;
 
 
+import java.util.List;
+
 /**
  * Contains a some information about a conversation: its ID, its name and its most recent message.
  *
@@ -8,16 +10,16 @@ package pw.bencole.benchat.models;
  *
  * @author Ben Cole
  */
-public class ConversationPreview {
+public class Conversation {
 
     private String mId;
+    private List<User> mParticipants;
     private Message mMostRecentMessage;
-    private String mConversationName;
 
-    public ConversationPreview(String conversationID, Message mostRecentMessage, String conversationName) {
+    public Conversation(String conversationID, List<User> participants, Message mostRecentMessage) {
         mId = conversationID;
+        mParticipants = participants;
         mMostRecentMessage = mostRecentMessage;
-        mConversationName = conversationName;
     }
 
     /**
@@ -35,7 +37,21 @@ public class ConversationPreview {
      * @return The name of the conversation
      */
     public String getConversationName() {
-        return mConversationName;
+        StringBuffer buffer = new StringBuffer("");
+        for (int i = 0; i < mParticipants.size(); i++) {
+            buffer.append(mParticipants.get(i).getUsername());
+            if (i != mParticipants.size() - 1) buffer.append(", ");
+        }
+        return buffer.toString();
+    }
+
+    /**
+     * Returns the list of participants in this conversation.
+     *
+     * @return the list of participants in this conversation
+     */
+    public List<User> getParticipants() {
+        return mParticipants;
     }
 
     /**

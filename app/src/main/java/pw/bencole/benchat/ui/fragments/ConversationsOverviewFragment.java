@@ -16,7 +16,7 @@ import android.widget.ProgressBar;
 import java.util.ArrayList;
 
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.ConversationPreview;
+import pw.bencole.benchat.models.Conversation;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.network.NetworkHelper;
 import pw.bencole.benchat.ui.activities.NewConversationActivity;
@@ -39,10 +39,10 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
     private ProgressBar mLoadingSpinner;
 
     /**
-     * A custom adapter to produce previews from ConversationPreview objects
+     * A custom adapter to produce previews from Conversation objects
      */
     private ConversationPreviewAdapter mAdapter;
-    private ArrayList<ConversationPreview> mConversations;
+    private ArrayList<Conversation> mConversations;
 
     /**
      * Reference to the parent activity so that the logged in user can be retrieved
@@ -56,7 +56,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
      */
     public interface OnConversationSelectedListener {
         LoggedInUser getUser();
-        void onConversationSelected(ConversationPreview conversation);
+        void onConversationSelected(Conversation conversation);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
      *
      * @param conversations The new list of conversations to display
      */
-    private void finishRefresh(ArrayList<ConversationPreview> conversations) {
+    private void finishRefresh(ArrayList<Conversation> conversations) {
         mAdapter.addAll(conversations);
         mLoadingSpinner.setVisibility(View.INVISIBLE);
     }
@@ -144,13 +144,13 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
      * Asynchronously fetches a list of all conversations for this user. When the download is
      * complete, the finishRefresh() method will be called to handle the changes.
      */
-    private class ConversationDownloadTask extends AsyncTask<Void, Void, ArrayList<ConversationPreview>> {
+    private class ConversationDownloadTask extends AsyncTask<Void, Void, ArrayList<Conversation>> {
 
         /**
          * Fetch the conversations from the server.
          */
         @Override
-        protected ArrayList<ConversationPreview> doInBackground(Void... voids) {
+        protected ArrayList<Conversation> doInBackground(Void... voids) {
             return NetworkHelper.getAllConversations(mListener.getUser(), getContext());
         }
 
@@ -159,7 +159,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
          * conversations that are displayed.
          */
         @Override
-        protected void onPostExecute(ArrayList<ConversationPreview> conversations) {
+        protected void onPostExecute(ArrayList<Conversation> conversations) {
             finishRefresh(conversations);
         }
     }

@@ -1,7 +1,6 @@
 package pw.bencole.benchat.network;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,7 +22,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.ConversationPreview;
+import pw.bencole.benchat.models.Conversation;
 import pw.bencole.benchat.models.FriendRequest;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.Message;
@@ -150,9 +149,9 @@ public class NetworkHelper {
      * @param context The Context from which the method is called
      * @return An ArrayList of all conversations in which the user is a participant
      */
-    public static ArrayList<ConversationPreview> getAllConversations(LoggedInUser user, Context context) {
+    public static ArrayList<Conversation> getAllConversations(LoggedInUser user, Context context) {
         JSONObject data = getUserJson(user);
-        ArrayList<ConversationPreview> conversations = new ArrayList<>();
+        ArrayList<Conversation> conversations = new ArrayList<>();
         try {
             String getConversationsURL = context.getResources().getString(R.string.get_conversations_url);
             Response response = postJson(getConversationsURL, data);
@@ -162,14 +161,12 @@ public class NetworkHelper {
                 for (int i = 0; i < result.length(); i++) {
                     JSONObject json = result.getJSONObject(i);
                     JSONArray participants = json.getJSONArray("participants");
-                    HashSet<User> participantsSet = new HashSet<>();
-                    String conversationName = "unnamed conversation";
+                    List<User> participantsList = new LinkedList<>();
                     for (int j = 0; j < participants.length(); j++) {
                         JSONObject participant = participants.getJSONObject(j);
                         String username = participant.getString("username");
                         String userId = participant.getString("_id");
-                        participantsSet.add(new User(username, userId));
-                        conversationName = json.getString("name");
+                        participantsList.add(new User(username, userId));
                     }
 
                     // TODO: Modify the API so you don't have to do this
@@ -179,7 +176,7 @@ public class NetworkHelper {
                         mostRecentMessage = messages.get(0);
                     }
 
-                    conversations.add(new ConversationPreview(json.getString("_id"), mostRecentMessage, conversationName));
+                    conversations.add(new Conversation(json.getString("_id"), participantsList, mostRecentMessage));
                 }
             }
         } catch (IOException | NullPointerException | JSONException e) {
@@ -227,11 +224,10 @@ public class NetworkHelper {
      * in otherUsers.
      *
      * @param otherUsers The Set of other users in this conversation
-     * @param conversationName The name to be used for the conversation
      * @param context The context from which the method is called
      * @return A ConversationCreationAttempt containing the result of the operation
      */
-    public static ConversationCreationAttempt createConversation(LoggedInUser user, Set<User> otherUsers, String conversationName, Context context) {
+    public static ConversationCreationAttempt createConversation(LoggedInUser user, Set<User> otherUsers, Context context) {
         JSONObject data = getUserJson(user);
         try {
             LinkedList<String> otherUserIDs = new LinkedList<>();
@@ -239,7 +235,6 @@ public class NetworkHelper {
                 otherUserIDs.add(otherUser.getId());
             }
             data.put("otherUsers", new JSONArray(otherUserIDs));
-            data.put("conversationName", conversationName);
             String url = context.getResources().getString(R.string.create_conversation_url);
             Response response = postJson(url, data);
             ResponseBody body = response.body();
@@ -369,24 +364,46 @@ public class NetworkHelper {
     }
 
     /**
-     * Responds (confirm/deny) to a friend request.
+     * Confirms a friend request.
      *
      * @param user The logged in user
      * @param request The request to respond to
-     * @param accept Whether to accept (vs deny) the request
      * @param context The Context from which the method is called
-     * @return true if the response was successful; false otherwise
+     * @return The User that was created
      */
-    public static boolean respondToFriendRequest(LoggedInUser user, FriendRequest request, boolean accept, Context context) {
+    public static User confirmFriendRequest(LoggedInUser user, FriendRequest request, Context context) {
         JSONObject data = getUserJson(user);
         String url = context.getResources().getString(R.string.respond_to_friend_request_url);
         try {
             data.put("friendRequestId", request.getRequestId());
-            if (accept) {
-                data.put("response", "accept");
-            } else {
-                data.put("response", "decline");
+            data.put("response", "accept");
+            Response response = postJson(url, data);
+            if (response.code() == 200) {
+                ResponseBody body = response.body();
+                JSONObject bodyJson = new JSONObject(body.string());
+                JSONObject otherUserJson = bodyJson.getJSONObject("otherUser");
+                return new User(otherUserJson.getString("username"), otherUserJson.getString("_id"));
             }
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Declines a friend request.
+     *
+     * @param user The logged in user
+     * @param request The request to respond to
+     * @param context The Context from which the method is called
+     * @return true if the response was successful; false otherwise
+     */
+    public static boolean declineFriendRequest(LoggedInUser user, FriendRequest request, Context context) {
+        JSONObject data = getUserJson(user);
+        String url = context.getResources().getString(R.string.respond_to_friend_request_url);
+        try {
+            data.put("friendRequestId", request.getRequestId());
+            data.put("response", "decline");
             Response response = postJson(url, data);
             return (response.code() == 200);
         } catch (JSONException | IOException e) {
@@ -421,7 +438,7 @@ public class NetworkHelper {
     /**
      * Adds another user as a friend.
      *
-     * The method uses a FailureReason to encode the result.
+     * The method uses a FriendCreationAttempt to encode the result.
      *
      * NONE:                           The friend request was sent successfully.
      * ALREADY_FRIENDS:                The logged in user is already friends with the user of that

@@ -135,10 +135,10 @@ public class FriendsFragment extends Fragment {
      * Handles the result from the server of attempting to add a friend, refreshing the list of
      * friends or displaying an error message as appropriate.
      *
-     * @param result The result of the operation from the server
+     * @param failureReason The result of the operation from the server
      */
-    private void handleAddFriendAttempt(FailureReason result) {
-        switch (result) {
+    private void handleAddFriendAttempt(FailureReason failureReason) {
+        switch (failureReason) {
             case NONE:
                 refresh();
                 break;

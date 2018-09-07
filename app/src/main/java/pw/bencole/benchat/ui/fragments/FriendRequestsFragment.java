@@ -15,12 +15,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.FriendRequest;
 import pw.bencole.benchat.models.LoggedInUser;
+import pw.bencole.benchat.models.User;
 import pw.bencole.benchat.network.NetworkHelper;
 
 /**
@@ -425,6 +427,7 @@ public class FriendRequestsFragment extends Fragment {
 
         private FriendRequest mRequest;
         private boolean mAccept;
+        private User mCreatedFriend;
 
         public AcceptOrDeclineRequestTask(FriendRequest request, boolean accept) {
             super();
@@ -434,12 +437,20 @@ public class FriendRequestsFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            return NetworkHelper.respondToFriendRequest(mUser, mRequest, mAccept, getContext());
+            if (mAccept) {
+                mCreatedFriend = NetworkHelper.confirmFriendRequest(mUser, mRequest, getContext());
+                return (mCreatedFriend != null);
+            } else {
+                return NetworkHelper.declineFriendRequest(mUser, mRequest, getContext());
+            }
         }
 
         @Override
         protected void onPostExecute(Boolean success) {
             handleNetworkOperationResult(success);
+            if (mAccept) {
+                new CreateInitialConversationTask(mCreatedFriend).execute();
+            }
         }
     }
 
@@ -463,6 +474,29 @@ public class FriendRequestsFragment extends Fragment {
         @Override
         protected void onPostExecute(Boolean success) {
             handleNetworkOperationResult(success);
+        }
+    }
+
+    private class CreateInitialConversationTask extends AsyncTask<Void, Void, Void> {
+
+        private User mOtherUser;
+
+        public CreateInitialConversationTask(User otherUser) {
+            mOtherUser = otherUser;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            HashSet<User> otherUsers = new HashSet<>();
+            otherUsers.add(mOtherUser);
+            NetworkHelper.createConversation(mUser, otherUsers, getContext());
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            // TODO: update the Activity so that the new conversation shows up
         }
     }
 
