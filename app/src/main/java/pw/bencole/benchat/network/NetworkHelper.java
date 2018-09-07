@@ -369,7 +369,7 @@ public class NetworkHelper {
     }
 
     /**
-     * Responds to a friend request.
+     * Responds (confirm/deny) to a friend request.
      *
      * @param user The logged in user
      * @param request The request to respond to
@@ -382,13 +382,35 @@ public class NetworkHelper {
         String url = context.getResources().getString(R.string.respond_to_friend_request_url);
         try {
             data.put("friendRequestId", request.getRequestId());
+            if (accept) {
+                data.put("response", "accept");
+            } else {
+                data.put("response", "decline");
+            }
             Response response = postJson(url, data);
-//            ResponseBody body = response.body();
-//            if (response.code() == 200) {
-//                return true;
-//            } else {
-//                return false;
-//            }
+            return (response.code() == 200);
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Cancels a sent friend request.
+     *
+     * This will fail if the user did not send the request.
+     *
+     * @param user The logged in user
+     * @param request The sent request to be cancelled
+     * @param context The context from which the method is called
+     * @return true if the operation was successful; false otherwise
+     */
+    public static boolean cancelSentFriendRequest(LoggedInUser user, FriendRequest request, Context context) {
+        JSONObject data = getUserJson(user);
+        String url = context.getResources().getString(R.string.cancel_friend_request_url);
+        try {
+            data.put("friendRequestId", request.getRequestId());
+            Response response = postJson(url, data);
             return (response.code() == 200);
         } catch (JSONException | IOException e) {
             e.printStackTrace();

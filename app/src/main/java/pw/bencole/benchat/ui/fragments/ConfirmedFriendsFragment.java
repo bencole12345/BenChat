@@ -20,7 +20,9 @@ import pw.bencole.benchat.network.NetworkHelper;
 
 
 /**
- * A Fragment that displays a scrollable list of all friends.
+ * A Fragment that displays a scrollable list of all (confirmed) friends.
+ *
+ * Any Activity or Fragment that contains this must implement Refreshable.
  *
  * @author Ben Cole
  */
@@ -32,10 +34,15 @@ public class ConfirmedFriendsFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private FriendListAdapter mAdapter;
 
+    /**
+     * Reference to the containing FriendsFragment so that it can be informed when a request is
+     * required
+     */
+    private FriendsFragment mParent;
+
     public ConfirmedFriendsFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,6 +64,17 @@ public class ConfirmedFriendsFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Saves a reference to the containing FriendsFragment so that it can be notified if it needs
+     * to be updated.
+     */
+    public void registerContainingFriendsFragment(FriendsFragment parent) {
+        mParent = parent;
+    }
+
+    /**
+     * Adapts a list of User objects to be displayed as the friends list.
+     */
     private class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.ViewHolder> {
 
         public class ViewHolder extends RecyclerView.ViewHolder {

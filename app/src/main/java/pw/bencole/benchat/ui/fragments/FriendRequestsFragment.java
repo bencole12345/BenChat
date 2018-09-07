@@ -24,7 +24,11 @@ import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.network.NetworkHelper;
 
 /**
- * A simple {@link Fragment} subclass.
+ * A Fragment that displays a list of received and sent friend requests.
+ *
+ * Any Activity or Fragment containing this must implement Refreshable.
+ *
+ * @author Ben Cole
  */
 public class FriendRequestsFragment extends Fragment {
 
@@ -44,6 +48,11 @@ public class FriendRequestsFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private FriendRequestListAdapter mAdapter;
 
+    /**
+     * Used to ensure that the parent fragment can be refreshed when a change is made
+     */
+    private FriendsFragment mParent;
+
     public FriendRequestsFragment() {
         // Required empty public constructor
     }
@@ -53,7 +62,9 @@ public class FriendRequestsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_friend_requests, container, false);
+
         mUser = (LoggedInUser) getArguments().get("user");
+
         mRecyclerView = view.findViewById(R.id.recyclerView);
         mElements = new ArrayList<>();
         mAdapter = new FriendRequestListAdapter(mElements);
@@ -66,22 +77,30 @@ public class FriendRequestsFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Saves a reference to the containing FriendsFragment so that it can be notified if it needs
+     * to be updated.
+     */
+    public void registerContainingFriendsFragment(FriendsFragment parent) {
+        mParent = parent;
+    }
+
     public void refresh() {
         // TODO: display progress bar
         new FriendRequestDownloadTask().execute();
     }
 
     /**
-     * Handles the result of the attempted accept/decline of a friend request.
+     * Handles the result of the attempted accept, decline or cancel of a friend request.
      *
      * If the operation was successful then the friend list will be refreshed. Otherwise, a
      * message indicating that there was a network error will be displayed.
      *
      * @param success Whether the operation was successful
      */
-    private void handleAcceptanceAttempt(Boolean success) {
+    private void handleNetworkOperationResult(Boolean success) {
         if (success) {
-            refresh();
+            if (mParent != null) mParent.refresh();
         } else {
             Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
         }
@@ -316,13 +335,15 @@ public class FriendRequestsFragment extends Fragment {
                     viewHolder = new ReceivedFriendRequestViewHolder(itemView, new ReceivedFriendRequestViewHolder.ReceivedFriendRequestClickListener() {
                         @Override
                         public void confirm(int position) {
-                            // TODO: fill this in
                             Toast.makeText(getContext(), "confirming request in position " + position, Toast.LENGTH_SHORT).show();
+                            ReceivedFriendRequestElement element = (ReceivedFriendRequestElement) mItems.get(position);
+                            new AcceptOrDeclineRequestTask(element.getFriendRequest(), true).execute();
                         }
                         @Override
                         public void decline(int position) {
-                            // TODO: fill this in
                             Toast.makeText(getContext(), "declining request in position " + position, Toast.LENGTH_SHORT).show();
+                            ReceivedFriendRequestElement element = (ReceivedFriendRequestElement) mItems.get(position);
+                            new AcceptOrDeclineRequestTask(element.getFriendRequest(), false).execute();
                         }
                     });
                     break;
@@ -331,8 +352,9 @@ public class FriendRequestsFragment extends Fragment {
                     viewHolder = new SentFriendRequestViewHolder(itemView, new SentFriendRequestViewHolder.SentFriendRequestClickListener() {
                         @Override
                         public void cancel(int position) {
-                            // TODO: fill this in
                             Toast.makeText(getContext(), "cancelling request in position " + position, Toast.LENGTH_SHORT).show();
+                            SentFriendRequestElement element = (SentFriendRequestElement) mItems.get(position);
+                            new CancelRequestTask(element.getFriendRequest()).execute();
                         }
                     });
             }
@@ -377,6 +399,7 @@ public class FriendRequestsFragment extends Fragment {
         public int getItemViewType(int position) {
             return mItems.get(position).getType();
         }
+
     }
 
     /**
@@ -395,22 +418,51 @@ public class FriendRequestsFragment extends Fragment {
         }
     }
 
-    private class AcceptOrDeclineTask extends AsyncTask<AcceptOrDeclineTask.FriendRequestResponse, Void, Boolean> {
+    /**
+     * Accepts or declines a received friend request.
+     */
+    private class AcceptOrDeclineRequestTask extends AsyncTask<Void, Void, Boolean> {
 
-        public class FriendRequestResponse {
-            public FriendRequest request;
-            public boolean accept;
+        private FriendRequest mRequest;
+        private boolean mAccept;
+
+        public AcceptOrDeclineRequestTask(FriendRequest request, boolean accept) {
+            super();
+            mRequest = request;
+            mAccept = accept;
         }
 
         @Override
-        protected Boolean doInBackground(FriendRequestResponse... friendRequestResponses) {
-            FriendRequestResponse response = friendRequestResponses[0];  // All of this is really dirty lol
-            return NetworkHelper.respondToFriendRequest(mUser, response.request, response.accept, getContext());
+        protected Boolean doInBackground(Void... voids) {
+            return NetworkHelper.respondToFriendRequest(mUser, mRequest, mAccept, getContext());
         }
 
         @Override
         protected void onPostExecute(Boolean success) {
-            handleAcceptanceAttempt(success);
+            handleNetworkOperationResult(success);
+        }
+    }
+
+    /**
+     * Cancels a sent friend request.
+     */
+    private class CancelRequestTask extends AsyncTask<Void, Void, Boolean> {
+
+        private FriendRequest mRequest;
+
+        public CancelRequestTask(FriendRequest request) {
+            super();
+            mRequest = request;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            return NetworkHelper.cancelSentFriendRequest(mUser, mRequest, getContext());
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            handleNetworkOperationResult(success);
         }
     }
 

@@ -10,4 +10,5 @@
     <string name="get_all_friends_url">https://benchat-api.herokuapp.com/friends/all</string>
     <string name="get_all_friend_requests_url">https://benchat-api.herokuapp.com/friends/all-requests</string>
     <string name="respond_to_friend_request_url">https://benchat-api.herokuapp.com/friends/respond</string>
+    <string name="cancel_friend_request_url">https://benchat-api.herokuapp.com/friends/cancel</string>
 </resources>
