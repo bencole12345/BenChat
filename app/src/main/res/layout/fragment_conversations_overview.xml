@@ -22,9 +22,10 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:clickable="true"
+        android:focusable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/baseline_add_white_36" />
+        app:srcCompat="@drawable/baseline_add_white_36"  />
 
     <ProgressBar
         android:id="@+id/loadingSpinner"

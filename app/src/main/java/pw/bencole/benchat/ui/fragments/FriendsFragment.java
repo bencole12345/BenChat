@@ -1,7 +1,14 @@
 package pw.bencole.benchat.ui.fragments;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -9,6 +16,9 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 
 import pw.bencole.benchat.R;
@@ -26,6 +36,11 @@ public class FriendsFragment extends Fragment {
      */
     private TabLayout mTabs;
     private ViewPager mViewPager;
+
+    /**
+     * Reference to Floating Action Button
+     */
+    private FloatingActionButton mFab;
 
     /**
      * Fragments for the list of friends and the pending friend request screens
@@ -64,6 +79,14 @@ public class FriendsFragment extends Fragment {
 
         mTabs.setupWithViewPager(mViewPager);
 
+        mFab = view.findViewById(R.id.addFriendFAB);
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showAddFriendDialog();
+            }
+        });
+
         return view;
     }
 
@@ -73,6 +96,53 @@ public class FriendsFragment extends Fragment {
     public void refresh() {
         mConfirmedFriendsFragment.refresh();
         mPendingFriendsFragment.refresh();
+    }
+
+    private void showAddFriendDialog() {
+//        LayoutInflater inflater = getActivity().getLayoutInflater();
+//        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+//        builder.setTitle(R.string.add_friend)
+////               .setMessage(R.string.enter_a_username)
+//               .setView(inflater.inflate(R.layout.dialog_add_friend, null))
+//               .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+//                   @Override
+//                   public void onClick(DialogInterface dialogInterface, int i) {
+//                       Toast.makeText(getContext(), "clicked", Toast.LENGTH_SHORT).show();
+//                   }
+//               });
+//
+//        builder.show();
+
+//        DialogFragment dialog = new AddFriendDialogFragment();
+//        dialog.show(getFragmentManager(), "AddFriendDialog");
+
+
+        final Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(R.layout.dialog_add_friend);
+        dialog.setTitle(R.string.enter_a_username);
+
+        final EditText usernameField = dialog.findViewById(R.id.usernameField);
+        Button addButton = dialog.findViewById(R.id.addButton);
+        Button cancelButton = dialog.findViewById(R.id.cancelButton);
+
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String username = usernameField.getText().toString();
+                // TODO: send to server
+                dialog.dismiss();
+            }
+        });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+
+        dialog.show();
+
     }
 
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
@@ -96,5 +166,24 @@ public class FriendsFragment extends Fragment {
             return 2;
         }
     }
+
+//    public static class AddFriendDialogFragment extends DialogFragment {
+//
+//        FriendsFragment mFriendsFragment;
+//        EditText mUsernameField;
+//
+//        @Nullable
+//        @Override
+//        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+//            View view = super.onCreateView(inflater, container, savedInstanceState);
+//            mUsernameField = view.findViewById(R.id.usernameField);
+//            return view;
+//        }
+//
+//        public void registerFriendsFragment(FriendsFragment friendsFragment) {
+//            mFriendsFragment = friendsFragment;
+//        }
+//
+//    }
 
 }
