@@ -418,4 +418,53 @@ public class NetworkHelper {
         return false;
     }
 
+    /**
+     * Adds another user as a friend.
+     *
+     * The method uses a FailureReason to encode the result.
+     *
+     * NONE:                           The friend request was sent successfully.
+     * ALREADY_FRIENDS:                The logged in user is already friends with the user of that
+     *                                 username.
+     * FRIEND_REQUEST_ALREADY_EXISTS:  A friend request has already been sent between the logged
+     *                                 in user and the target user.
+     * FRIENDS_WITH_SELF:              The logged in user attempted to send themself a friend
+     *                                 request.
+     * USER_NOT_FOUND                  The requested user could not be found.
+     *
+     * @param user The logged in user
+     * @param username The username of the target user
+     * @param context The context from which the method is called
+     * @return A FailureReason encoding the result of the operation
+     */
+    public static FailureReason addFriend(LoggedInUser user, String username, Context context) {
+        if (user.getUsername().equals(username)) {
+            return FailureReason.FRIENDS_WITH_SELF;
+        }
+        JSONObject data = getUserJson(user);
+        String url = context.getResources().getString(R.string.add_friend_url);
+        try {
+            data.put("otherUsername", username);
+            Response response = postJson(url, data);
+            if (response.code() == 201) {
+                return FailureReason.NONE;
+            }
+            ResponseBody body = response.body();
+            JSONObject responseJson = new JSONObject(body.string());
+            if (response.code() == 422) {
+                if (responseJson.getBoolean("alreadyFriends")) {
+                    return FailureReason.ALREADY_FRIENDS;
+                } else {
+                    return FailureReason.FRIEND_REQUEST_ALREADY_EXISTS;
+                }
+            }
+            if (response.code() == 404) {
+                return FailureReason.USER_NOT_FOUND;
+            }
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return FailureReason.NETWORK_ERROR;
+    }
+
 }

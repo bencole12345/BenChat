@@ -1,14 +1,10 @@
 package pw.bencole.benchat.ui.fragments;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -22,6 +18,9 @@ import android.widget.Toast;
 
 
 import pw.bencole.benchat.R;
+import pw.bencole.benchat.models.LoggedInUser;
+import pw.bencole.benchat.network.FailureReason;
+import pw.bencole.benchat.network.NetworkHelper;
 
 
 /**
@@ -30,6 +29,11 @@ import pw.bencole.benchat.R;
  * @author Ben Cole
  */
 public class FriendsFragment extends Fragment {
+
+    /**
+     * The logged in user
+     */
+    private LoggedInUser mUser;
 
     /**
      * UI elements for changing tabs
@@ -51,6 +55,8 @@ public class FriendsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friends, container, false);
+
+        mUser = (LoggedInUser) getArguments().get("user");
 
         mConfirmedFriendsFragment = new ConfirmedFriendsFragment();
         mConfirmedFriendsFragment.setArguments(getArguments());
@@ -98,38 +104,21 @@ public class FriendsFragment extends Fragment {
         mPendingFriendsFragment.refresh();
     }
 
+    /**
+     * Displays a dialog for adding a new friend.
+     */
     private void showAddFriendDialog() {
-//        LayoutInflater inflater = getActivity().getLayoutInflater();
-//        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-//        builder.setTitle(R.string.add_friend)
-////               .setMessage(R.string.enter_a_username)
-//               .setView(inflater.inflate(R.layout.dialog_add_friend, null))
-//               .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-//                   @Override
-//                   public void onClick(DialogInterface dialogInterface, int i) {
-//                       Toast.makeText(getContext(), "clicked", Toast.LENGTH_SHORT).show();
-//                   }
-//               });
-//
-//        builder.show();
-
-//        DialogFragment dialog = new AddFriendDialogFragment();
-//        dialog.show(getFragmentManager(), "AddFriendDialog");
-
-
         final Dialog dialog = new Dialog(getContext());
         dialog.setContentView(R.layout.dialog_add_friend);
         dialog.setTitle(R.string.enter_a_username);
-
         final EditText usernameField = dialog.findViewById(R.id.usernameField);
         Button addButton = dialog.findViewById(R.id.addButton);
         Button cancelButton = dialog.findViewById(R.id.cancelButton);
-
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String username = usernameField.getText().toString();
-                // TODO: send to server
+                new AddFriendTask(username).execute();
                 dialog.dismiss();
             }
         });
@@ -139,12 +128,37 @@ public class FriendsFragment extends Fragment {
                 dialog.dismiss();
             }
         });
-
-
         dialog.show();
-
     }
 
+    /**
+     * Handles the result from the server of attempting to add a friend, refreshing the list of
+     * friends or displaying an error message as appropriate.
+     *
+     * @param result The result of the operation from the server
+     */
+    private void handleAddFriendAttempt(FailureReason result) {
+        switch (result) {
+            case NONE:
+                refresh();
+                break;
+            case FRIEND_REQUEST_ALREADY_EXISTS:
+                Toast.makeText(getContext(), "There is already a friend request with this person.", Toast.LENGTH_SHORT).show();
+                break;
+            case ALREADY_FRIENDS:
+                Toast.makeText(getContext(), "You are already friends with this person.", Toast.LENGTH_SHORT).show();
+                break;
+            case FRIENDS_WITH_SELF:
+                Toast.makeText(getContext(), "You cannot add yourself as a friend!", Toast.LENGTH_SHORT).show();
+                break;
+            case USER_NOT_FOUND:
+                Toast.makeText(getContext(), "User not found.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Adapts the two fragments into the ViewPager.
+     */
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
 
         public ScreenSlidePagerAdapter(FragmentManager fm) {
@@ -167,23 +181,26 @@ public class FriendsFragment extends Fragment {
         }
     }
 
-//    public static class AddFriendDialogFragment extends DialogFragment {
-//
-//        FriendsFragment mFriendsFragment;
-//        EditText mUsernameField;
-//
-//        @Nullable
-//        @Override
-//        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-//            View view = super.onCreateView(inflater, container, savedInstanceState);
-//            mUsernameField = view.findViewById(R.id.usernameField);
-//            return view;
-//        }
-//
-//        public void registerFriendsFragment(FriendsFragment friendsFragment) {
-//            mFriendsFragment = friendsFragment;
-//        }
-//
-//    }
+    /**
+     * Sends a friend request to the server.
+     */
+    private class AddFriendTask extends AsyncTask<Void, Void, FailureReason> {
+
+        private String mUsername;
+
+        public AddFriendTask(String username) {
+            mUsername = username;
+        }
+
+        @Override
+        protected FailureReason doInBackground(Void... voids) {
+            return NetworkHelper.addFriend(mUser, mUsername, getContext());
+        }
+
+        @Override
+        protected void onPostExecute(FailureReason failureReason) {
+            handleAddFriendAttempt(failureReason);
+        }
+    }
 
 }
