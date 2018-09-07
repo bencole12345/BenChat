@@ -41,7 +41,7 @@ public class ConversationMessageAdapter extends ArrayAdapter<Message> {
         mLoggedInUser = user;
 
         mThisUserColour = context.getColor(R.color.colorSecondary);
-        mOtherUserColour = context.getColor(R.color.colorPrimaryDark);
+//        mOtherUserColour = context.getColor(R.color.colorPrimaryDark);
     }
 
     @Override
@@ -76,9 +76,10 @@ public class ConversationMessageAdapter extends ArrayAdapter<Message> {
 
         if (message.getSender().getId().equals(mLoggedInUser.getId())) {
             viewHolder.username.setTextColor(mThisUserColour);
-        } else {
-            viewHolder.username.setTextColor(mOtherUserColour);
         }
+//        else {
+//            viewHolder.username.setTextColor(mOtherUserColour);
+//        }
 
         return result;
     }
