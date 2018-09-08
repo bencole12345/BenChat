@@ -58,7 +58,7 @@ public class ConversationPreviewAdapter extends ArrayAdapter<Conversation> {
             viewHolder = (ViewHolder) result.getTag();
         }
 
-        viewHolder.conversationName.setText(conversation.getConversationName());
+        viewHolder.conversationName.setText(conversation.getConversationName(mUser));
         viewHolder.messagePreview.setText(conversation.getMessagePreview());
         return result;
     }

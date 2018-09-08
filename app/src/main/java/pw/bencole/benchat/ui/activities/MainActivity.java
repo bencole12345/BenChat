@@ -93,7 +93,6 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
     public void onConversationSelected(Conversation conversation) {
         Intent conversationIntent = new Intent(this, ConversationActivity.class);
         conversationIntent.putExtra(ConversationActivity.CONVERSATION_THIS_USER, mUser);

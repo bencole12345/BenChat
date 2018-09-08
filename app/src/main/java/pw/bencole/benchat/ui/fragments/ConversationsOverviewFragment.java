@@ -6,21 +6,24 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.Conversation;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.network.NetworkHelper;
 import pw.bencole.benchat.ui.activities.NewConversationActivity;
-import pw.bencole.benchat.ui.adapters.ConversationPreviewAdapter;
 
 /**
  * Downloads from the server and displays a list of all conversations in which the logged in user
@@ -34,7 +37,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
     /**
      * References to UI elements
      */
-    private ListView mConversationsList;
+    private RecyclerView mConversationsList;
     private FloatingActionButton mFab;
     private ProgressBar mLoadingSpinner;
 
@@ -65,7 +68,15 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
 
         mConversations = new ArrayList<>();
         mConversationsList = view.findViewById(R.id.conversationsOverviewListView);
-        mConversationsList.setOnItemClickListener(this);
+
+        mAdapter = new ConversationPreviewAdapter(mConversations, mListener);
+        mConversationsList.setAdapter(mAdapter);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        mConversationsList.setLayoutManager(layoutManager);
+
+        DividerItemDecoration divider = new DividerItemDecoration(getContext(), layoutManager.getOrientation());
+        mConversationsList.addItemDecoration(divider);
 
         mFab = view.findViewById(R.id.floatingActionButtonNewConversation);
         mFab.setOnClickListener(new View.OnClickListener() {
@@ -77,9 +88,6 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
 
         mLoadingSpinner = view.findViewById(R.id.loadingSpinner);
         mLoadingSpinner.setVisibility(View.INVISIBLE);
-
-        mAdapter = new ConversationPreviewAdapter(mListener.getUser(), getContext(), R.layout.listelement_conversation_overview, mConversations);
-        mConversationsList.setAdapter(mAdapter);
 
         return view;
     }
@@ -106,7 +114,8 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
      */
     public void refresh() {
         mLoadingSpinner.setVisibility(View.VISIBLE);
-        mAdapter.clear();
+        mConversations.clear();
+        mAdapter.notifyDataSetChanged();
         new ConversationDownloadTask().execute();
     }
 
@@ -116,7 +125,9 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
      * @param conversations The new list of conversations to display
      */
     private void finishRefresh(ArrayList<Conversation> conversations) {
-        mAdapter.addAll(conversations);
+        mConversations.clear();
+        mConversations.addAll(conversations);
+        mAdapter.notifyDataSetChanged();
         mLoadingSpinner.setVisibility(View.INVISIBLE);
     }
 
@@ -138,6 +149,58 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         mListener.onConversationSelected(mConversations.get(i));
+    }
+
+    private static class ConversationPreviewAdapter extends RecyclerView.Adapter<ConversationPreviewAdapter.ViewHolder> {
+
+        private List<Conversation> mConversations;
+        private OnConversationSelectedListener mListener;
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            TextView conversationName;
+            TextView messagePreview;
+
+            public ViewHolder(View itemView) {
+                super(itemView);
+                conversationName = itemView.findViewById(R.id.conversationNameTextView);
+                messagePreview = itemView.findViewById(R.id.messagePreviewTextView);
+            }
+
+        }
+
+        public ConversationPreviewAdapter(List<Conversation> conversations,
+                                          OnConversationSelectedListener listener) {
+            mConversations = conversations;
+            mListener = listener;
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.listelement_conversation_overview,
+                            parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            final Conversation conversation = mConversations.get(position);  // final so that it can be used in the click listener
+            holder.conversationName.setText(conversation.getConversationName(mListener.getUser()));
+            holder.messagePreview.setText(conversation.getMessagePreview());
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mListener.onConversationSelected(conversation);
+                }
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return mConversations.size();
+        }
     }
 
     /**

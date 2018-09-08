@@ -337,13 +337,11 @@ public class FriendRequestsFragment extends Fragment {
                     viewHolder = new ReceivedFriendRequestViewHolder(itemView, new ReceivedFriendRequestViewHolder.ReceivedFriendRequestClickListener() {
                         @Override
                         public void confirm(int position) {
-                            Toast.makeText(getContext(), "confirming request in position " + position, Toast.LENGTH_SHORT).show();
                             ReceivedFriendRequestElement element = (ReceivedFriendRequestElement) mItems.get(position);
                             new AcceptOrDeclineRequestTask(element.getFriendRequest(), true).execute();
                         }
                         @Override
                         public void decline(int position) {
-                            Toast.makeText(getContext(), "declining request in position " + position, Toast.LENGTH_SHORT).show();
                             ReceivedFriendRequestElement element = (ReceivedFriendRequestElement) mItems.get(position);
                             new AcceptOrDeclineRequestTask(element.getFriendRequest(), false).execute();
                         }
@@ -354,7 +352,6 @@ public class FriendRequestsFragment extends Fragment {
                     viewHolder = new SentFriendRequestViewHolder(itemView, new SentFriendRequestViewHolder.SentFriendRequestClickListener() {
                         @Override
                         public void cancel(int position) {
-                            Toast.makeText(getContext(), "cancelling request in position " + position, Toast.LENGTH_SHORT).show();
                             SentFriendRequestElement element = (SentFriendRequestElement) mItems.get(position);
                             new CancelRequestTask(element.getFriendRequest()).execute();
                         }

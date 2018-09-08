@@ -36,13 +36,8 @@ public class Conversation {
      *
      * @return The name of the conversation
      */
-    public String getConversationName() {
-        StringBuffer buffer = new StringBuffer("");
-        for (int i = 0; i < mParticipants.size(); i++) {
-            buffer.append(mParticipants.get(i).getUsername());
-            if (i != mParticipants.size() - 1) buffer.append(", ");
-        }
-        return buffer.toString();
+    public String getConversationName(LoggedInUser user) {
+        return getConversationName(user, mParticipants);
     }
 
     /**
@@ -68,6 +63,17 @@ public class Conversation {
                     + ": "
                     + mMostRecentMessage.getContent();
         }
+    }
+
+    public static String getConversationName(LoggedInUser user, List<User> participants) {
+        StringBuilder builder = new StringBuilder("");
+        for (int i = 0; i < participants.size(); i++) {
+            if (!participants.get(i).getUsername().equals(user.getUsername())) {
+                builder.append(participants.get(i).getUsername());
+                if (i != participants.size() - 1) builder.append(", ");
+            }
+        }
+        return builder.toString();
     }
 
 }

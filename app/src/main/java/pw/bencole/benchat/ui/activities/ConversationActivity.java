@@ -74,7 +74,7 @@ public class ConversationActivity extends AppCompatActivity {
         mLoggedInUser = (LoggedInUser) getIntent().getExtras().get(CONVERSATION_THIS_USER);
         mConversationId = getIntent().getExtras().getString(CONVERSATION_ID);
 
-        // TODO: set the activity title
+        // TODO: Set activity name
 
         // Find the view elements from the layout
         mConversationList = findViewById(R.id.conversationList);
