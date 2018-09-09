@@ -245,12 +245,14 @@ public class NetworkHelper {
             String url = context.getResources().getString(R.string.create_conversation_url);
             Response response = postJson(url, data);
             ResponseBody body = response.body();
+            JSONObject bodyParsed = new JSONObject(body.string());
             switch (response.code()) {
                 case 201:
-                    JSONObject bodyParsed = new JSONObject(body.string());
-                    return new ConversationCreationAttempt(true, bodyParsed.getString("_id"), FailureReason.NONE);
-                case 422:
-                    return new ConversationCreationAttempt(false, null, FailureReason.CONVERSATION_ALREADY_EXISTS);
+                    String newId = bodyParsed.getString("_id");
+                    return new ConversationCreationAttempt(true, newId, FailureReason.NONE);
+                case 400:
+                    String existingId = bodyParsed.getString("existingConversationId");
+                    return new ConversationCreationAttempt(false, existingId, FailureReason.CONVERSATION_ALREADY_EXISTS);
                 default:
                     return new ConversationCreationAttempt(false, null, FailureReason.NETWORK_ERROR);
             }

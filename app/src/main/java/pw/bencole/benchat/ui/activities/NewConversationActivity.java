@@ -1,6 +1,9 @@
 package pw.bencole.benchat.ui.activities;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -135,20 +138,44 @@ public class NewConversationActivity extends AppCompatActivity {
      */
     private void handleConversationCreationAttempt(ConversationCreationAttempt attempt) {
         if (attempt.getWasSuccessful()) {
-            Intent conversationActivityIntent = new Intent(this, ConversationActivity.class);
-            conversationActivityIntent.putExtra(ConversationActivity.CONVERSATION_ID, attempt.getConversationId());
-            startActivity(conversationActivityIntent);
-            finish();
+            displayConversation(attempt.getConversationId());
         } else {
             switch (attempt.getFailureReason()) {
                 case NETWORK_ERROR:
                     Toast.makeText(this, "Network error", Toast.LENGTH_SHORT).show();
                     return;
                 case CONVERSATION_ALREADY_EXISTS:
-                    // TODO: Show a dialog, include button to go to that conversation that launches a ConversationActivity (the id is included in the response)
-                    Toast.makeText(this, "Conversation already exists!", Toast.LENGTH_SHORT).show();
+                    final String existingConversationId = attempt.getConversationId();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Conversation already exists")
+                           .setMessage("View the existing conversation with these users?")
+                           .setPositiveButton("View", new DialogInterface.OnClickListener() {
+                               @Override
+                               public void onClick(DialogInterface dialogInterface, int i) {
+                                   displayConversation(existingConversationId);
+                               }
+                           })
+                           .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                               @Override
+                               public void onClick(DialogInterface dialogInterface, int i) {
+                                   dialogInterface.dismiss();
+                               }
+                           })
+                           .show();
             }
         }
+    }
+
+    /**
+     * Initialises a ConversationActivity to display the conversation with the passed ID.
+     *
+     * @param conversationId The ID of the conversation to view
+     */
+    private void displayConversation(String conversationId) {
+        Intent conversationActivityIntent = new Intent(this, ConversationActivity.class);
+        conversationActivityIntent.putExtra(ConversationActivity.CONVERSATION_ID, conversationId);
+        startActivity(conversationActivityIntent);
+        finish();
     }
 
     /**
