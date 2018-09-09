@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -99,15 +98,19 @@ public class NetworkHelper {
             String loginURL = context.getResources().getString(R.string.login_url);
             Response response = postJson(loginURL, data);
             ResponseBody body = response.body();
-            if (response.code() == 200) {
-                JSONObject result = new JSONObject(body.string());
-                String id = result.getString("_id");
-                LoggedInUser user = new LoggedInUser(username, password, id);
-                loginAttempt = new LoginAttempt(true, user, FailureReason.NONE);
-            } else if (response.code() == 401) {
-                loginAttempt = new LoginAttempt(false, null, FailureReason.INVALID_CREDENTIALS);
-            } else {
-                loginAttempt = new LoginAttempt(false, null, FailureReason.NETWORK_ERROR);
+            switch (response.code()) {
+                case 200:
+                    JSONObject result = new JSONObject(body.string());
+                    String id = result.getString("_id");
+                    LoggedInUser user = new LoggedInUser(username, password, id);
+                    loginAttempt = new LoginAttempt(true, user, FailureReason.NONE);
+                    break;
+                case 401:
+                    loginAttempt = new LoginAttempt(false, null, FailureReason.INVALID_CREDENTIALS);
+                    break;
+                default:
+                    loginAttempt = new LoginAttempt(false, null, FailureReason.NETWORK_ERROR);
+                    break;
             }
         } catch (IOException | NullPointerException | JSONException e) {
             e.printStackTrace();
@@ -242,13 +245,14 @@ public class NetworkHelper {
             String url = context.getResources().getString(R.string.create_conversation_url);
             Response response = postJson(url, data);
             ResponseBody body = response.body();
-            if (response.code() == 201) {
-                JSONObject bodyParsed = new JSONObject(body.string());
-                return new ConversationCreationAttempt(true, bodyParsed.getString("_id"), FailureReason.NONE);
-            } else if (response.code() == 422) {
-                return new ConversationCreationAttempt(false, null, FailureReason.CONVERSATION_ALREADY_EXISTS);
-            } else {
-                return new ConversationCreationAttempt(false, null, FailureReason.NETWORK_ERROR);
+            switch (response.code()) {
+                case 201:
+                    JSONObject bodyParsed = new JSONObject(body.string());
+                    return new ConversationCreationAttempt(true, bodyParsed.getString("_id"), FailureReason.NONE);
+                case 422:
+                    return new ConversationCreationAttempt(false, null, FailureReason.CONVERSATION_ALREADY_EXISTS);
+                default:
+                    return new ConversationCreationAttempt(false, null, FailureReason.NETWORK_ERROR);
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();

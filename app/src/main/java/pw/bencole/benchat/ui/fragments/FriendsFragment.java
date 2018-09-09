@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.network.FailureReason;
 import pw.bencole.benchat.network.NetworkHelper;
 

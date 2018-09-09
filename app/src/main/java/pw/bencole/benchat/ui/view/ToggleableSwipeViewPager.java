@@ -31,10 +31,6 @@ public class ToggleableSwipeViewPager extends ViewPager {
         mAllowSwiping = swipingAllowed;
     }
 
-    public boolean getSwipingAllowed() {
-        return mAllowSwiping;
-    }
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return mAllowSwiping && super.onTouchEvent(event);

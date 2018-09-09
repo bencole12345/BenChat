@@ -32,12 +32,6 @@ public class ConfirmedFriendsFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private FriendListAdapter mAdapter;
 
-    /**
-     * Reference to the containing FriendsFragment so that it can be informed when a request is
-     * required
-     */
-    private FriendsFragment mParent;
-
     public ConfirmedFriendsFragment() {
         // Required empty public constructor
     }
@@ -65,7 +59,6 @@ public class ConfirmedFriendsFragment extends Fragment {
      * to be updated.
      */
     public void registerContainingFriendsFragment(FriendsFragment parent) {
-        mParent = parent;
     }
 
     /**
