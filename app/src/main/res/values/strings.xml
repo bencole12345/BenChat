@@ -40,4 +40,5 @@
     <string name="username">Username</string>
     <string name="add_friend">Add a Friend</string>
     <string name="add">Add</string>
+    <string name="type_a_message">Type a message...</string>
 </resources>

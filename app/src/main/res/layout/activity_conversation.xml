@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.activities.ConversationActivity">
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/conversationList"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -28,7 +28,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:ems="10"
-        android:hint="Type a message..."
+        android:hint="@string/type_a_message"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/sendButton"
