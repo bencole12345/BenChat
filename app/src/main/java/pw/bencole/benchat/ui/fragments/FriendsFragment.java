@@ -31,11 +31,6 @@ import pw.bencole.benchat.network.NetworkHelper;
 public class FriendsFragment extends Fragment {
 
     /**
-     * The logged in user
-     */
-    private LoggedInUser mUser;
-
-    /**
      * UI elements for changing tabs
      */
     private TabLayout mTabs;
@@ -55,8 +50,6 @@ public class FriendsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friends, container, false);
-
-        mUser = (LoggedInUser) getArguments().get("user");
 
         mConfirmedFriendsFragment = new ConfirmedFriendsFragment();
         mConfirmedFriendsFragment.setArguments(getArguments());
@@ -194,7 +187,7 @@ public class FriendsFragment extends Fragment {
 
         @Override
         protected FailureReason doInBackground(Void... voids) {
-            return NetworkHelper.addFriend(mUser, mUsername, getContext());
+            return NetworkHelper.addFriend(mUsername, getContext());
         }
 
         @Override

@@ -127,9 +127,8 @@ public class LoginActivity extends AppCompatActivity
      * @param user The user that was just logged in (and potentially signed up)
      */
     private void login(LoggedInUser user) {
-        LoginManager.setLoggedInUser(user, this);
+        LoginManager.getInstance().setLoggedInUser(user);
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("user", user);
         startActivity(intent);
         finish();
     }

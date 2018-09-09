@@ -15,7 +15,6 @@ import android.view.MenuItem;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.Conversation;
-import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.ui.fragments.ConversationsOverviewFragment;
 import pw.bencole.benchat.ui.fragments.FriendsFragment;
 import pw.bencole.benchat.ui.fragments.SettingsFragment;
@@ -36,37 +35,31 @@ public class MainActivity extends AppCompatActivity
                    BottomNavigationView.OnNavigationItemSelectedListener {
 
     /**
-     * Tracks the logged in user so that API requests can be made
-     */
-    private LoggedInUser mUser;
-
-    /**
      * References to UI elements
      */
     private BottomNavigationView mBottomNavigationView;
     private ToggleableSwipeViewPager mPager;
 
+    /**
+     * The three fragments to be displayed
+     */
     private FriendsFragment mFriendsFragment;
     private ConversationsOverviewFragment mConversationsOverviewFragment;
     private SettingsFragment mSettingsFragment;
 
+    /**
+     * Adapter to serve pages when a bottom navigation button is clicked
+     */
     private BottomNavigationPagerAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mUser = (LoggedInUser) getIntent().getExtras().get("user");
         setContentView(R.layout.activity_main);
-
-        // Create a Bundle so that the logged in user can be passed to the fragments.
-        Bundle fragmentArguments = new Bundle();
-        fragmentArguments.putSerializable("user", mUser);
 
         // Create exactly one instance of each fragment.
         mFriendsFragment = new FriendsFragment();
-        mFriendsFragment.setArguments(fragmentArguments);
         mConversationsOverviewFragment = new ConversationsOverviewFragment();
-        mConversationsOverviewFragment.setArguments(fragmentArguments);
         mSettingsFragment = new SettingsFragment();
 
         // Set up the view pager and adapter, passing references to the fragments to its
@@ -95,7 +88,6 @@ public class MainActivity extends AppCompatActivity
 
     public void onConversationSelected(Conversation conversation) {
         Intent conversationIntent = new Intent(this, ConversationActivity.class);
-        conversationIntent.putExtra(ConversationActivity.CONVERSATION_THIS_USER, mUser);
         conversationIntent.putExtra(ConversationActivity.CONVERSATION_ID, conversation.getId());
         startActivity(conversationIntent);
     }
@@ -160,7 +152,7 @@ public class MainActivity extends AppCompatActivity
      * Signs the user out, updating the persistent store and returning to LoginActivity.
      */
     private void signOut() {
-        LoginManager.logout(this);
+        LoginManager.getInstance().logout();
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
         finish();
@@ -177,15 +169,6 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_friends:
                 mFriendsFragment.refresh();
         }
-    }
-
-    /**
-     * Returns the user that is logged in to the app.
-     *
-     * @return the user that is logged in to the app
-     */
-    public LoggedInUser getUser() {
-        return mUser;
     }
 
     /**

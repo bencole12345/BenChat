@@ -27,6 +27,7 @@ import pw.bencole.benchat.models.FriendRequest;
 import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.Message;
 import pw.bencole.benchat.models.User;
+import pw.bencole.benchat.util.LoginManager;
 
 /**
  * Handles all communication with the server.
@@ -58,12 +59,13 @@ public class NetworkHelper {
     }
 
     /**
-     * Creates a JSONObject containing the username, password and id of the passed LoggedInUser.
+     * Creates a JSONObject containing the username, password and id of the currently logged in
+     * user.
      *
-     * @param user The currently logged in user
      * @return The user's username, password and id formatted as a JSONObject
      */
-    private static JSONObject getUserJson(LoggedInUser user) {
+    private static JSONObject getUserJson() {
+        LoggedInUser user = LoginManager.getInstance().getLoggedInUser();
         JSONObject data = new JSONObject();
         try {
             if (user.getUsername() != null)
@@ -84,13 +86,16 @@ public class NetworkHelper {
      *
      * @param username The username to log in
      * @param password The password of that user
+     * @param context The context from which the method is called
      * @return A LoginAttempt object containing the result of the attempted login, including a
      *         LoggedInUser object if the login was successful
      */
     public static LoginAttempt login(String username, String password, Context context) {
-        JSONObject data = getUserJson(new LoggedInUser(username, password, null));
-        LoginAttempt loginAttempt = null;
+        LoginAttempt loginAttempt;
         try {
+            JSONObject data = new JSONObject();
+            data.put("username", username);
+            data.put("password", password);
             String loginURL = context.getResources().getString(R.string.login_url);
             Response response = postJson(loginURL, data);
             ResponseBody body = response.body();
@@ -121,9 +126,11 @@ public class NetworkHelper {
      *         FailureReason otherwise
      */
     public static LoginAttempt signup(String username, String password, Context context) {
-        JSONObject data = getUserJson(new LoggedInUser(username, password, null));
         LoginAttempt loginAttempt = null;
         try {
+            JSONObject data = new JSONObject();
+            data.put("username", username);
+            data.put("password", password);
             String signupURL = context.getResources().getString(R.string.signup_url);
             Response response = postJson(signupURL, data);
             ResponseBody body = response.body();
@@ -145,12 +152,11 @@ public class NetworkHelper {
      * Returns a list of all conversations involving the passed LoggedInUser. These conversations
      * will not be populated with messages.
      *
-     * @param user The user whose conversations are to be loaded
      * @param context The Context from which the method is called
      * @return An ArrayList of all conversations in which the user is a participant
      */
-    public static ArrayList<Conversation> getAllConversations(LoggedInUser user, Context context) {
-        JSONObject data = getUserJson(user);
+    public static ArrayList<Conversation> getAllConversations(Context context) {
+        JSONObject data = getUserJson();
         ArrayList<Conversation> conversations = new ArrayList<>();
         try {
             String getConversationsURL = context.getResources().getString(R.string.get_conversations_url);
@@ -170,7 +176,7 @@ public class NetworkHelper {
                     }
 
                     // TODO: Modify the API so you don't have to do this
-                    ArrayList<Message> messages = getAllMessagesInConversation(user, json.getString("_id"), context);
+                    ArrayList<Message> messages = getAllMessagesInConversation(json.getString("_id"), context);
                     Message mostRecentMessage = null;
                     if (messages.size() > 0) {
                         mostRecentMessage = messages.get(0);
@@ -188,13 +194,12 @@ public class NetworkHelper {
     /**
      * Retrieves all messages in the requested conversation.
      *
-     * @param user The LoggedInUser requesting the messages
      * @param conversationId The ID of the conversation
      * @param context The Context from which the method is called
      * @return A list of all messages in this conversation
      */
-    public static ArrayList<Message> getAllMessagesInConversation(LoggedInUser user, String conversationId, Context context) {
-        JSONObject data = getUserJson(user);
+    public static ArrayList<Message> getAllMessagesInConversation(String conversationId, Context context) {
+        JSONObject data = getUserJson();
         ArrayList<Message> messages = new ArrayList<>();
         try {
             data.put("conversationId", conversationId);
@@ -209,7 +214,6 @@ public class NetworkHelper {
                 String authorName = author.getString("username");
                 String messageContent = message.getString("content");
                 User sender = new User(authorName, authorId);
-                // TODO: Load the timestamp from the data and replace "i" below
                 String timestamp = message.getString("createdAt");
                 messages.add(new Message(messageContent, sender, timestamp));
             }
@@ -227,8 +231,8 @@ public class NetworkHelper {
      * @param context The context from which the method is called
      * @return A ConversationCreationAttempt containing the result of the operation
      */
-    public static ConversationCreationAttempt createConversation(LoggedInUser user, Set<User> otherUsers, Context context) {
-        JSONObject data = getUserJson(user);
+    public static ConversationCreationAttempt createConversation(Set<User> otherUsers, Context context) {
+        JSONObject data = getUserJson();
         try {
             LinkedList<String> otherUserIDs = new LinkedList<>();
             for (User otherUser : otherUsers) {
@@ -255,14 +259,13 @@ public class NetworkHelper {
     /**
      * Attempts to send a message to a conversation.
      *
-     * @param user The LoggedInUser sending the message
      * @param message The Message to be the sent
      * @param conversationID The ID of the target conversation
      * @param context The Context from which the method is called
      * @return true if the operation was successful; false otherwise
      */
-    public static boolean sendMessage(LoggedInUser user, Message message, String conversationID, Context context) {
-        JSONObject data = getUserJson(user);
+    public static boolean sendMessage(Message message, String conversationID, Context context) {
+        JSONObject data = getUserJson();
         try {
             data.put("messageContent", message.getContent());
             data.put("conversationId", conversationID);
@@ -278,12 +281,11 @@ public class NetworkHelper {
     /**
      * Finds all users that are friends with the currently logged in user.
      *
-     * @param user The currently logged in user
      * @param context The context from which the method is called
      * @return A list of all Users that are friends with the logged in user
      */
-    public static ArrayList<User> getAllFriends(LoggedInUser user, Context context) {
-        JSONObject data = getUserJson(user);
+    public static ArrayList<User> getAllFriends(Context context) {
+        JSONObject data = getUserJson();
         try {
             String url = context.getResources().getString(R.string.get_all_friends_url);
             Response response = postJson(url, data);
@@ -312,13 +314,12 @@ public class NetworkHelper {
      * A map is used to encode the result. There will be two keys: "sent" and "received". Each of
      * these points to a list of FriendRequest objects.
      *
-     * @param user The currently logged in user
      * @param context The context from which the method is called
      * @return A map to encode the list of sent friend requests and the list of received friend
      *         requests
      */
-    public static Map<String, List<FriendRequest>> getAllRequests(LoggedInUser user, Context context) {
-        JSONObject data = getUserJson(user);
+    public static Map<String, List<FriendRequest>> getAllRequests(Context context) {
+        JSONObject data = getUserJson();
         Map<String, List<FriendRequest>> result = new HashMap<>();
         result.put("sent", new ArrayList<FriendRequest>());
         result.put("received", new ArrayList<FriendRequest>());
@@ -366,13 +367,12 @@ public class NetworkHelper {
     /**
      * Confirms a friend request.
      *
-     * @param user The logged in user
      * @param request The request to respond to
      * @param context The Context from which the method is called
      * @return The User that was created
      */
-    public static User confirmFriendRequest(LoggedInUser user, FriendRequest request, Context context) {
-        JSONObject data = getUserJson(user);
+    public static User confirmFriendRequest(FriendRequest request, Context context) {
+        JSONObject data = getUserJson();
         String url = context.getResources().getString(R.string.respond_to_friend_request_url);
         try {
             data.put("friendRequestId", request.getRequestId());
@@ -393,13 +393,12 @@ public class NetworkHelper {
     /**
      * Declines a friend request.
      *
-     * @param user The logged in user
      * @param request The request to respond to
      * @param context The Context from which the method is called
      * @return true if the response was successful; false otherwise
      */
-    public static boolean declineFriendRequest(LoggedInUser user, FriendRequest request, Context context) {
-        JSONObject data = getUserJson(user);
+    public static boolean declineFriendRequest(FriendRequest request, Context context) {
+        JSONObject data = getUserJson();
         String url = context.getResources().getString(R.string.respond_to_friend_request_url);
         try {
             data.put("friendRequestId", request.getRequestId());
@@ -417,13 +416,12 @@ public class NetworkHelper {
      *
      * This will fail if the user did not send the request.
      *
-     * @param user The logged in user
      * @param request The sent request to be cancelled
      * @param context The context from which the method is called
      * @return true if the operation was successful; false otherwise
      */
-    public static boolean cancelSentFriendRequest(LoggedInUser user, FriendRequest request, Context context) {
-        JSONObject data = getUserJson(user);
+    public static boolean cancelSentFriendRequest(FriendRequest request, Context context) {
+        JSONObject data = getUserJson();
         String url = context.getResources().getString(R.string.cancel_friend_request_url);
         try {
             data.put("friendRequestId", request.getRequestId());
@@ -449,16 +447,15 @@ public class NetworkHelper {
      *                                 request.
      * USER_NOT_FOUND                  The requested user could not be found.
      *
-     * @param user The logged in user
      * @param username The username of the target user
      * @param context The context from which the method is called
      * @return A FailureReason encoding the result of the operation
      */
-    public static FailureReason addFriend(LoggedInUser user, String username, Context context) {
-        if (user.getUsername().equals(username)) {
+    public static FailureReason addFriend(String username, Context context) {
+        if (LoginManager.getInstance().getLoggedInUser().getUsername().equals(username)) {
             return FailureReason.FRIENDS_WITH_SELF;
         }
-        JSONObject data = getUserJson(user);
+        JSONObject data = getUserJson();
         String url = context.getResources().getString(R.string.add_friend_url);
         try {
             data.put("otherUsername", username);

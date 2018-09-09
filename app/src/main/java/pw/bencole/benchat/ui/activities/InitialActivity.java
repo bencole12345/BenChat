@@ -22,9 +22,12 @@ public class InitialActivity extends AppCompatActivity {
 
         Intent activityIntent;
 
-        if (LoginManager.getIsLoggedIn(this)) {
+        LoginManager loginManager = LoginManager.getInstance();
+        loginManager.initialise(this);
+
+        if (loginManager.savedLoginExists()) {
             activityIntent = new Intent(this, MainActivity.class);
-            activityIntent.putExtra("user", LoginManager.getLoggedInUser(this));
+            activityIntent.putExtra("user", loginManager.getLoggedInUser());
         } else {
             activityIntent = new Intent(this, LoginActivity.class);
         }

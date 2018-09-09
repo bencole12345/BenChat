@@ -14,7 +14,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.User;
 import pw.bencole.benchat.network.NetworkHelper;
 
@@ -28,7 +27,6 @@ import pw.bencole.benchat.network.NetworkHelper;
  */
 public class ConfirmedFriendsFragment extends Fragment {
 
-    private LoggedInUser mUser;
     private ArrayList<User> mFriends;
 
     private RecyclerView mRecyclerView;
@@ -49,8 +47,6 @@ public class ConfirmedFriendsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_confirmed_friends, container, false);
-
-        mUser = (LoggedInUser) getArguments().get("user");
 
         mRecyclerView = view.findViewById(R.id.confirmedFriendsList);
         mRecyclerView.setHasFixedSize(true);
@@ -124,7 +120,7 @@ public class ConfirmedFriendsFragment extends Fragment {
 
         @Override
         protected ArrayList<User> doInBackground(Void... voids) {
-            return NetworkHelper.getAllFriends(mUser, getContext());
+            return NetworkHelper.getAllFriends(getContext());
         }
 
         @Override

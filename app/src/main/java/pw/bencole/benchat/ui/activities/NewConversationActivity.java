@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.User;
 import pw.bencole.benchat.network.ConversationCreationAttempt;
 import pw.bencole.benchat.network.NetworkHelper;
@@ -46,7 +45,6 @@ public class NewConversationActivity extends AppCompatActivity {
 
     private HashSet<Integer> mSelectedParticipants;
 
-    private LoggedInUser mLoggedInUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +56,6 @@ public class NewConversationActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        mLoggedInUser = (LoggedInUser) getIntent().getExtras().get("user");
         mSelectedParticipants = new HashSet<>();
 
         mFriendsList = findViewById(R.id.friendsList);
@@ -149,7 +146,6 @@ public class NewConversationActivity extends AppCompatActivity {
     private void handleConverationCreationAttempt(ConversationCreationAttempt attempt) {
         if (attempt.getWasSuccessful()) {
             Intent conversationActivityIntent = new Intent(this, ConversationActivity.class);
-            conversationActivityIntent.putExtra(ConversationActivity.CONVERSATION_THIS_USER, mLoggedInUser);
             conversationActivityIntent.putExtra(ConversationActivity.CONVERSATION_ID, attempt.getConversationId());
             startActivity(conversationActivityIntent);
             finish();
@@ -221,7 +217,7 @@ public class NewConversationActivity extends AppCompatActivity {
 
         @Override
         protected ArrayList<User> doInBackground(Void... voids) {
-            return NetworkHelper.getAllFriends(mLoggedInUser, mContext);
+            return NetworkHelper.getAllFriends(mContext);
         }
 
         @Override
@@ -239,8 +235,7 @@ public class NewConversationActivity extends AppCompatActivity {
 
         @Override
         protected ConversationCreationAttempt doInBackground(Void... voids) {
-//            String conversationName = mConversationNameField.getText().toString();
-            return NetworkHelper.createConversation(mLoggedInUser, getConversationParticipants(), getApplicationContext());
+            return NetworkHelper.createConversation(getConversationParticipants(), getApplicationContext());
         }
 
         @Override

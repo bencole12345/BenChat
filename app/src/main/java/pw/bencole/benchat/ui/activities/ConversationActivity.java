@@ -17,10 +17,10 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.Message;
 import pw.bencole.benchat.network.NetworkHelper;
 import pw.bencole.benchat.ui.adapters.ConversationMessageAdapter;
+import pw.bencole.benchat.util.LoginManager;
 
 
 /**
@@ -34,7 +34,6 @@ public class ConversationActivity extends AppCompatActivity {
     /**
      * Tags for passing information about the conversation in question to this activity
      */
-    public static String CONVERSATION_THIS_USER = "conversation_this_user";
     public static String CONVERSATION_ID = "conversation_id";
 
     /**
@@ -51,11 +50,6 @@ public class ConversationActivity extends AppCompatActivity {
     private ConversationMessageAdapter mAdapter;
 
     /**
-     * The current user of the app
-     */
-    private LoggedInUser mLoggedInUser;
-
-    /**
      * The ID of the conversation this Activity is displaying
      */
     private String mConversationId;
@@ -70,8 +64,7 @@ public class ConversationActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        // Unpack the users passed to this activity
-        mLoggedInUser = (LoggedInUser) getIntent().getExtras().get(CONVERSATION_THIS_USER);
+        // Load the conversation ID passed to this activity
         mConversationId = getIntent().getExtras().getString(CONVERSATION_ID);
 
         // TODO: Set activity name
@@ -109,7 +102,7 @@ public class ConversationActivity extends AppCompatActivity {
         });
 
         // Set the adaptor to display the list of messages
-        mAdapter = new ConversationMessageAdapter(this, R.layout.listelement_conversation_message, new ArrayList<Message>(), mLoggedInUser);
+        mAdapter = new ConversationMessageAdapter(this, R.layout.listelement_conversation_message, new ArrayList<Message>());
         mConversationList.setAdapter(mAdapter);
 
 //        mConversationList.setDivider(null);
@@ -164,7 +157,7 @@ public class ConversationActivity extends AppCompatActivity {
     private void sendMessage() {
         String content = mMessageContent.getText().toString();
         mMessageContent.setText("");
-        Message message = new Message(content, mLoggedInUser);
+        Message message = new Message(content, LoginManager.getInstance().getLoggedInUser());
         new SendMessageTask().execute(message);
         // TODO: Show a dialog or spinner to show that the message is sending
     }
@@ -184,7 +177,7 @@ public class ConversationActivity extends AppCompatActivity {
 
         @Override
         protected ArrayList<Message> doInBackground(Void... voids) {
-            return NetworkHelper.getAllMessagesInConversation(mLoggedInUser, mConversationId, getApplicationContext());
+            return NetworkHelper.getAllMessagesInConversation(mConversationId, getApplicationContext());
         }
 
         @Override
@@ -205,7 +198,7 @@ public class ConversationActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Message... messages) {
             mMessage = messages[0];
-            return NetworkHelper.sendMessage(mLoggedInUser, mMessage, mConversationId, getApplicationContext());
+            return NetworkHelper.sendMessage(mMessage, mConversationId, getApplicationContext());
         }
 
         @Override

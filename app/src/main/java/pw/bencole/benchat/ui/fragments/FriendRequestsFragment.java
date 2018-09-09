@@ -21,7 +21,6 @@ import java.util.Map;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.FriendRequest;
-import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.User;
 import pw.bencole.benchat.network.NetworkHelper;
 
@@ -33,11 +32,6 @@ import pw.bencole.benchat.network.NetworkHelper;
  * @author Ben Cole
  */
 public class FriendRequestsFragment extends Fragment {
-
-    /**
-     * The currently logged in user
-     */
-    private LoggedInUser mUser;
 
     /**
      * Stores the list of people, as well as the labels to separate received from sent requests
@@ -64,8 +58,6 @@ public class FriendRequestsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_friend_requests, container, false);
-
-        mUser = (LoggedInUser) getArguments().get("user");
 
         mRecyclerView = view.findViewById(R.id.recyclerView);
         mElements = new ArrayList<>();
@@ -408,7 +400,7 @@ public class FriendRequestsFragment extends Fragment {
 
         @Override
         protected Map<String, List<FriendRequest>> doInBackground(Void... voids) {
-            return NetworkHelper.getAllRequests(mUser, getContext());
+            return NetworkHelper.getAllRequests(getContext());
         }
 
         @Override
@@ -435,10 +427,10 @@ public class FriendRequestsFragment extends Fragment {
         @Override
         protected Boolean doInBackground(Void... voids) {
             if (mAccept) {
-                mCreatedFriend = NetworkHelper.confirmFriendRequest(mUser, mRequest, getContext());
+                mCreatedFriend = NetworkHelper.confirmFriendRequest(mRequest, getContext());
                 return (mCreatedFriend != null);
             } else {
-                return NetworkHelper.declineFriendRequest(mUser, mRequest, getContext());
+                return NetworkHelper.declineFriendRequest(mRequest, getContext());
             }
         }
 
@@ -465,7 +457,7 @@ public class FriendRequestsFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            return NetworkHelper.cancelSentFriendRequest(mUser, mRequest, getContext());
+            return NetworkHelper.cancelSentFriendRequest(mRequest, getContext());
         }
 
         @Override
@@ -486,7 +478,7 @@ public class FriendRequestsFragment extends Fragment {
         protected Void doInBackground(Void... voids) {
             HashSet<User> otherUsers = new HashSet<>();
             otherUsers.add(mOtherUser);
-            NetworkHelper.createConversation(mUser, otherUsers, getContext());
+            NetworkHelper.createConversation(otherUsers, getContext());
             return null;
         }
 

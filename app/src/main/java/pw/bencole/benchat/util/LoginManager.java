@@ -7,8 +7,8 @@ import pw.bencole.benchat.models.LoggedInUser;
 
 
 /**
- * Offers static methods for dealing with logging out and in, and storing user login details
- * persistently.
+ * A Singleton used to access the currently logged in user, as well as save and load this to disk
+ * for consistency between sessions.
  *
  * @author Ben Cole
  */
@@ -24,10 +24,48 @@ public class LoginManager {
     public static final String IS_LOGGED_IN = "is_logged_in";
 
     /**
-     * Returns a reference to the SharedPreferences file used by this class.
+     * The single instance of this class.
      */
-    private static SharedPreferences getSharedPreferences(Context context) {
-        return context.getSharedPreferences(LOGIN_PREFERENCES, Context.MODE_PRIVATE);
+    private static LoginManager mInstance;
+
+    /**
+     * The currently logged in user
+     */
+    private LoggedInUser mLoggedInUser;
+
+    /**
+     * The SharedPreferences file used to store login details persistently
+     */
+    private SharedPreferences mSharedPreferences;
+
+
+    /**
+     * Private constructor, as per the singleton design pattern.
+     */
+    private LoginManager() {}
+
+    /**
+     * Used to access the instance of this class.
+     *
+     * @return The single instance of this LoginManager.
+     */
+    public static LoginManager getInstance() {
+        if (mInstance == null) {
+            mInstance = new LoginManager();
+        }
+        return mInstance;
+    }
+
+    /**
+     * Sets up the singleton instance.
+     *
+     * @param context A Context object, used to access the SharedPreferences file
+     */
+    public void initialise(Context context) {
+        mSharedPreferences = context.getSharedPreferences(LOGIN_PREFERENCES, Context.MODE_PRIVATE);
+        if (savedLoginExists()) {
+            mLoggedInUser = getSavedLoggedInUser();
+        }
     }
 
     /**
@@ -37,42 +75,55 @@ public class LoginManager {
      * @return true if there are already username and password details saved from last time; false
      *         otherwise
      */
-    public static boolean getIsLoggedIn(Context context) {
-        SharedPreferences preferences = getSharedPreferences(context);
-        return preferences.getBoolean(IS_LOGGED_IN, false)
-                && preferences.contains(USERNAME)
-                && preferences.contains(PASSWORD)
-                && preferences.contains(USER_ID);
+    public boolean savedLoginExists() {
+        return mSharedPreferences.getBoolean(IS_LOGGED_IN, false)
+                && mSharedPreferences.contains(USERNAME)
+                && mSharedPreferences.contains(PASSWORD)
+                && mSharedPreferences.contains(USER_ID);
     }
 
     /**
-     * Retrieves the user that logged in when the app was last used. In the event that there are
-     * no such details stored, null will be returned.
+     * Returns the user that is currently logged in.
      *
-     * @param context The context from which this method is called
+     * If they have already been retrieved from the persistent store, then the previously
+     * constructed LoggedInUser object will be used. If not, the user will first be loaded from
+     * the store.
+     *
+     * If no user has been logged in since the last logout, then null will be returned.
+     *
      * @return The LoggedInUser that signed in when the app was last used, or null if they don't
      *         exist
      */
-    public static LoggedInUser getLoggedInUser(Context context) {
-        SharedPreferences preferences = getSharedPreferences(context);
-        String username = preferences.getString(USERNAME, null);
-        String password = preferences.getString(PASSWORD, null);
-        String userId = preferences.getString(USER_ID, null);
-        if (!getIsLoggedIn(context) || username == null || password == null || userId == null) {
-            return null;
-        } else {
+    public LoggedInUser getLoggedInUser() {
+        if (mLoggedInUser == null) {
+            mLoggedInUser = getSavedLoggedInUser();
+        }
+        return mLoggedInUser;
+    }
+
+    /**
+     * Returns the LoggedInUser that was last written to the persistent store, or null if they
+     * don't exist.
+     */
+    private LoggedInUser getSavedLoggedInUser() {
+        if (savedLoginExists()) {
+            String username = mSharedPreferences.getString(USERNAME, null);
+            String password = mSharedPreferences.getString(PASSWORD, null);
+            String userId = mSharedPreferences.getString(USER_ID, null);
             return new LoggedInUser(username, password, userId);
+        } else {
+            return null;
         }
     }
 
     /**
      * Updates the persistently stored user.
+     *
      * @param user The new user to log in
-     * @param context The context from which the method is called
      */
-    public static void setLoggedInUser(LoggedInUser user, Context context) {
-        SharedPreferences preferences = getSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
+    public void setLoggedInUser(LoggedInUser user) {
+        mLoggedInUser = user;
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putBoolean(IS_LOGGED_IN, true);
         editor.putString(USERNAME, user.getUsername());
         editor.putString(PASSWORD, user.getPassword());
@@ -82,12 +133,10 @@ public class LoginManager {
 
     /**
      * Deletes the logged in user from the permanent store.
-     *
-     * @param context The context from which the method was called
      */
-    public static void logout(Context context) {
-        SharedPreferences preferences = getSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
+    public void logout() {
+        mLoggedInUser = null;
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putBoolean(IS_LOGGED_IN, false);
         editor.putString(USERNAME, null);
         editor.putString(PASSWORD, null);

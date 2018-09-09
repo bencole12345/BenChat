@@ -3,6 +3,8 @@ package pw.bencole.benchat.models;
 
 import java.util.List;
 
+import pw.bencole.benchat.util.LoginManager;
+
 /**
  * Contains a some information about a conversation: its ID, its name and its most recent message.
  *
@@ -36,8 +38,8 @@ public class Conversation {
      *
      * @return The name of the conversation
      */
-    public String getConversationName(LoggedInUser user) {
-        return getConversationName(user, mParticipants);
+    public String getConversationName() {
+        return getConversationName(mParticipants);
     }
 
     /**
@@ -65,7 +67,8 @@ public class Conversation {
         }
     }
 
-    public static String getConversationName(LoggedInUser user, List<User> participants) {
+    public static String getConversationName(List<User> participants) {
+        LoggedInUser user = LoginManager.getInstance().getLoggedInUser();
         StringBuilder builder = new StringBuilder("");
         for (int i = 0; i < participants.size(); i++) {
             if (!participants.get(i).getUsername().equals(user.getUsername())) {

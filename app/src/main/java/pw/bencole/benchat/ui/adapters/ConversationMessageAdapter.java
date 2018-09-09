@@ -3,6 +3,7 @@ package pw.bencole.benchat.ui.adapters;
 import android.content.Context;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +13,8 @@ import android.widget.TextView;
 import java.util.List;
 
 import pw.bencole.benchat.R;
-import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.models.Message;
+import pw.bencole.benchat.util.LoginManager;
 
 
 /**
@@ -32,15 +33,12 @@ public class ConversationMessageAdapter extends ArrayAdapter<Message> {
         TextView content;
     }
 
-    private LoggedInUser mLoggedInUser;
     private int mThisUserColour;
-    private int mOtherUserColour;
+//    private int mOtherUserColour;
 
-    public ConversationMessageAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects, LoggedInUser user) {
+    public ConversationMessageAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects) {
         super(context, resource, objects);
-        mLoggedInUser = user;
-
-        mThisUserColour = context.getColor(R.color.colorSecondary);
+        mThisUserColour = ContextCompat.getColor(context, R.color.colorSecondary);
 //        mOtherUserColour = context.getColor(R.color.colorPrimaryDark);
     }
 
@@ -74,7 +72,7 @@ public class ConversationMessageAdapter extends ArrayAdapter<Message> {
             viewHolder.timestamp.setVisibility(View.INVISIBLE);
         }
 
-        if (message.getSender().getId().equals(mLoggedInUser.getId())) {
+        if (message.getSender().getId().equals(LoginManager.getInstance().getLoggedInUser().getId())) {
             viewHolder.username.setTextColor(mThisUserColour);
         }
 //        else {

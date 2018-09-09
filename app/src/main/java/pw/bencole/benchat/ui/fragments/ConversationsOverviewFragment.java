@@ -21,7 +21,6 @@ import java.util.List;
 
 import pw.bencole.benchat.R;
 import pw.bencole.benchat.models.Conversation;
-import pw.bencole.benchat.models.LoggedInUser;
 import pw.bencole.benchat.network.NetworkHelper;
 import pw.bencole.benchat.ui.activities.NewConversationActivity;
 
@@ -58,7 +57,6 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
      * conversation is selected.
      */
     public interface OnConversationSelectedListener {
-        LoggedInUser getUser();
         void onConversationSelected(Conversation conversation);
     }
 
@@ -142,7 +140,6 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
      */
     private void createNewConversation() {
         Intent intent = new Intent(getContext(), NewConversationActivity.class);
-        intent.putExtra("user", mListener.getUser());
         startActivity(intent);
     }
 
@@ -187,7 +184,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             final Conversation conversation = mConversations.get(position);  // final so that it can be used in the click listener
-            holder.conversationName.setText(conversation.getConversationName(mListener.getUser()));
+            holder.conversationName.setText(conversation.getConversationName());
             holder.messagePreview.setText(conversation.getMessagePreview());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -214,7 +211,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
          */
         @Override
         protected ArrayList<Conversation> doInBackground(Void... voids) {
-            return NetworkHelper.getAllConversations(mListener.getUser(), getContext());
+            return NetworkHelper.getAllConversations(getContext());
         }
 
         /**

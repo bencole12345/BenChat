@@ -21,10 +21,9 @@ import pw.bencole.benchat.models.LoggedInUser;
  */
 public class ConversationPreviewAdapter extends ArrayAdapter<Conversation> {
 
-    /**
-     * Reference to the current logged in user
-     */
-    private LoggedInUser mUser;
+    public ConversationPreviewAdapter(@NonNull Context context, int resource, @NonNull List<Conversation> objects) {
+        super(context, resource, objects);
+    }
 
     /**
      * Stores references to UI elements to reduce the number of findViewById() calls made
@@ -32,11 +31,6 @@ public class ConversationPreviewAdapter extends ArrayAdapter<Conversation> {
     private static class ViewHolder {
         TextView conversationName;
         TextView messagePreview;
-    }
-
-    public ConversationPreviewAdapter(LoggedInUser user, @NonNull Context context, int resource, @NonNull List<Conversation> objects) {
-        super(context, resource, objects);
-        mUser = user;
     }
 
     @Override
@@ -58,7 +52,7 @@ public class ConversationPreviewAdapter extends ArrayAdapter<Conversation> {
             viewHolder = (ViewHolder) result.getTag();
         }
 
-        viewHolder.conversationName.setText(conversation.getConversationName(mUser));
+        viewHolder.conversationName.setText(conversation.getConversationName());
         viewHolder.messagePreview.setText(conversation.getMessagePreview());
         return result;
     }
