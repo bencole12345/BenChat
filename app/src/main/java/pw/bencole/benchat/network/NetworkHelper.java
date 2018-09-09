@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -48,7 +49,11 @@ public class NetworkHelper {
      * @return The response from the server
      */
     private static Response postJson(String url, JSONObject json) throws IOException {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build();
         RequestBody body = RequestBody.create(JSON, json.toString());
         Request request = new Request.Builder()
                 .url(url)
