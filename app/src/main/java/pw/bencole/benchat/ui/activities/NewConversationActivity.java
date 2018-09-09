@@ -15,7 +15,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckedTextView;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -36,7 +35,6 @@ import pw.bencole.benchat.network.NetworkHelper;
  */
 public class NewConversationActivity extends AppCompatActivity {
 
-    private EditText mConversationNameField;
     private ListView mFriendsList;
     private Button mCreateConversationButton;
 
@@ -65,7 +63,6 @@ public class NewConversationActivity extends AppCompatActivity {
         mFriendsList.setAdapter(mAdapter);
         mFriendsList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
-        mConversationNameField = findViewById(R.id.conversationName);
         mCreateConversationButton = findViewById(R.id.createConversationButton);
         mCreateConversationButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,20 +99,13 @@ public class NewConversationActivity extends AppCompatActivity {
      */
     private void attemptCreateConversation() {
 
-        // Check that a name has been entered
-        if (mConversationNameField.getText().length() == 0) {
-            Toast.makeText(this, "You must enter a conversation name.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         // Check that at least one other user has been selected
         if (mSelectedParticipants.size() == 0) {
             Toast.makeText(this, "You must select at least one other user.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // TODO: Check if conversation with this set of people already exists
-        // TODO: (possibly) check if conversation name already in use?
+        // TODO: Check if conversation with this set of people already exists (can be handled server-side)
 
         // All validation passed, so send the details to the server.
         new NewConversationTask().execute();
@@ -143,7 +133,7 @@ public class NewConversationActivity extends AppCompatActivity {
      *
      * @param attempt The ConversationCreationAttempt containing the result
      */
-    private void handleConverationCreationAttempt(ConversationCreationAttempt attempt) {
+    private void handleConversationCreationAttempt(ConversationCreationAttempt attempt) {
         if (attempt.getWasSuccessful()) {
             Intent conversationActivityIntent = new Intent(this, ConversationActivity.class);
             conversationActivityIntent.putExtra(ConversationActivity.CONVERSATION_ID, attempt.getConversationId());
@@ -152,16 +142,11 @@ public class NewConversationActivity extends AppCompatActivity {
         } else {
             switch (attempt.getFailureReason()) {
                 case NETWORK_ERROR:
-                    // TODO: Show a dialog
                     Toast.makeText(this, "Network error", Toast.LENGTH_SHORT).show();
                     return;
                 case CONVERSATION_ALREADY_EXISTS:
                     // TODO: Show a dialog, include button to go to that conversation that launches a ConversationActivity (the id is included in the response)
                     Toast.makeText(this, "Conversation already exists!", Toast.LENGTH_SHORT).show();
-                    return;
-                case USER_NOT_FOUND:
-                    // TODO: Show a dialog for this
-                    Toast.makeText(this, "Username not found", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -240,7 +225,7 @@ public class NewConversationActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(ConversationCreationAttempt attempt) {
-            handleConverationCreationAttempt(attempt);
+            handleConversationCreationAttempt(attempt);
         }
     }
 }
