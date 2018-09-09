@@ -39,6 +39,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
     private RecyclerView mConversationsList;
     private FloatingActionButton mFab;
     private ProgressBar mLoadingSpinner;
+    private TextView mEmptyMessage;
 
     /**
      * A custom adapter to produce previews from Conversation objects
@@ -87,6 +88,9 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
         mLoadingSpinner = view.findViewById(R.id.loadingSpinner);
         mLoadingSpinner.setVisibility(View.INVISIBLE);
 
+        mEmptyMessage = view.findViewById(R.id.emptyMessage);
+        mEmptyMessage.setVisibility(View.INVISIBLE);
+
         return view;
     }
 
@@ -112,6 +116,7 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
      */
     public void refresh() {
         mLoadingSpinner.setVisibility(View.VISIBLE);
+        mEmptyMessage.setVisibility(View.INVISIBLE);
         mConversations.clear();
         mAdapter.notifyDataSetChanged();
         new ConversationDownloadTask().execute();
@@ -127,6 +132,11 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
         mConversations.addAll(conversations);
         mAdapter.notifyDataSetChanged();
         mLoadingSpinner.setVisibility(View.INVISIBLE);
+        if (conversations.isEmpty()) {
+            mEmptyMessage.setVisibility(View.VISIBLE);
+        } else {
+            mEmptyMessage.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
