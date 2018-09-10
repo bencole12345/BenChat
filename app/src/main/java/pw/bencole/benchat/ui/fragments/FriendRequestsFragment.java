@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +46,16 @@ public class FriendRequestsFragment extends Fragment {
     private FriendRequestListAdapter mAdapter;
 
     /**
+     * Used to show when the data is currently refreshing
+     */
+    private ProgressBar mProgressSpinner;
+
+    /**
+     * Displayed when there are no friend requests to display
+     */
+    private TextView mNoRequestsMessage;
+
+    /**
      * Used to ensure that the parent fragment can be refreshed when a change is made
      */
     private FriendsFragment mParent;
@@ -56,9 +67,9 @@ public class FriendRequestsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_friend_requests, container, false);
-
+        mNoRequestsMessage = view.findViewById(R.id.noRequestsMessage);
+        mProgressSpinner = view.findViewById(R.id.progressSpinner);
         mRecyclerView = view.findViewById(R.id.recyclerView);
         mElements = new ArrayList<>();
         mAdapter = new FriendRequestListAdapter(mElements);
@@ -67,7 +78,6 @@ public class FriendRequestsFragment extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
         refresh();
-
         return view;
     }
 
@@ -80,7 +90,8 @@ public class FriendRequestsFragment extends Fragment {
     }
 
     public void refresh() {
-        // TODO: display progress bar
+        mProgressSpinner.setVisibility(View.VISIBLE);
+        mNoRequestsMessage.setVisibility(View.INVISIBLE);
         new FriendRequestDownloadTask().execute();
     }
 
@@ -133,6 +144,13 @@ public class FriendRequestsFragment extends Fragment {
         }
 
         mAdapter.notifyDataSetChanged();
+
+        mProgressSpinner.setVisibility(View.INVISIBLE);
+        if (sentRequests.isEmpty() && receivedRequests.isEmpty()) {
+            mNoRequestsMessage.setVisibility(View.VISIBLE);
+        } else {
+            mNoRequestsMessage.setVisibility(View.INVISIBLE);
+        }
     }
 
     /**
@@ -425,6 +443,11 @@ public class FriendRequestsFragment extends Fragment {
         }
 
         @Override
+        protected void onPreExecute() {
+            mProgressSpinner.setVisibility(View.VISIBLE);
+        }
+
+        @Override
         protected Boolean doInBackground(Void... voids) {
             if (mAccept) {
                 mCreatedFriend = NetworkHelper.confirmFriendRequest(mRequest, getContext());
@@ -453,6 +476,11 @@ public class FriendRequestsFragment extends Fragment {
         public CancelRequestTask(FriendRequest request) {
             super();
             mRequest = request;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            mProgressSpinner.setVisibility(View.VISIBLE);
         }
 
         @Override
