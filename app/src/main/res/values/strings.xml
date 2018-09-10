@@ -41,4 +41,5 @@
     <string name="type_a_message">Type a message...</string>
     <string name="create_conversation">Create Conversation</string>
     <string name="no_messages_add_a_friend_to_get_chatting">No conversations! Add a friend to get chatting.</string>
+    <string name="no_friends_message">No friends! Add your first friend using the button below.</string>
 </resources>

@@ -52,7 +52,6 @@ public class FriendsFragment extends Fragment {
 
         mConfirmedFriendsFragment = new ConfirmedFriendsFragment();
         mConfirmedFriendsFragment.setArguments(getArguments());
-        mConfirmedFriendsFragment.registerContainingFriendsFragment(this);
         mPendingFriendsFragment = new FriendRequestsFragment();
         mPendingFriendsFragment.setArguments(getArguments());
         mPendingFriendsFragment.registerContainingFriendsFragment(this);

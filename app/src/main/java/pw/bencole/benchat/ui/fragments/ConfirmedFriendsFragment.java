@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ public class ConfirmedFriendsFragment extends Fragment {
 
     private ArrayList<User> mFriends;
 
+    private TextView mNoFriendsMessage;
+    private ProgressBar mProgressSpinner;
     private RecyclerView mRecyclerView;
     private FriendListAdapter mAdapter;
 
@@ -39,9 +42,9 @@ public class ConfirmedFriendsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_confirmed_friends, container, false);
-
+        mNoFriendsMessage = view.findViewById(R.id.noFriendsMessage);
+        mProgressSpinner = view.findViewById(R.id.progressSpinner);
         mRecyclerView = view.findViewById(R.id.confirmedFriendsList);
         mRecyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -50,15 +53,7 @@ public class ConfirmedFriendsFragment extends Fragment {
         mAdapter = new FriendListAdapter(mFriends);
         mRecyclerView.setAdapter(mAdapter);
         refresh();
-
         return view;
-    }
-
-    /**
-     * Saves a reference to the containing FriendsFragment so that it can be notified if it needs
-     * to be updated.
-     */
-    public void registerContainingFriendsFragment(FriendsFragment parent) {
     }
 
     /**
@@ -101,8 +96,12 @@ public class ConfirmedFriendsFragment extends Fragment {
         }
     }
 
-
+    /**
+     * Starts downloading the list of friends to update the UI.
+     */
     public void refresh() {
+        mProgressSpinner.setVisibility(View.VISIBLE);
+        mNoFriendsMessage.setVisibility(View.INVISIBLE);
         new FriendListDownloadTask().execute();
     }
 
@@ -121,6 +120,12 @@ public class ConfirmedFriendsFragment extends Fragment {
             mFriends.clear();
             mFriends.addAll(users);
             mAdapter.notifyDataSetChanged();
+            if (mFriends.isEmpty()) {
+                mNoFriendsMessage.setVisibility(View.VISIBLE);
+            } else {
+                mNoFriendsMessage.setVisibility(View.INVISIBLE);
+            }
+            mProgressSpinner.setVisibility(View.INVISIBLE);
         }
     }
 
