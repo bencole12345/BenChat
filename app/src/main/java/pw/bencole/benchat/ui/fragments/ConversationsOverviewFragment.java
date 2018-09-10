@@ -134,8 +134,14 @@ public class ConversationsOverviewFragment extends Fragment implements AdapterVi
         mLoadingSpinner.setVisibility(View.INVISIBLE);
         if (conversations.isEmpty()) {
             mEmptyMessage.setVisibility(View.VISIBLE);
+            // TODO: Check for existence of friends rather than conversations.
+            // At the moment this works fine, because a conversation is automatically created
+            // when a friend is added. Still, it would be better to actually consider friends
+            // rather than conversation.
+            mFab.setVisibility(View.INVISIBLE);
         } else {
             mEmptyMessage.setVisibility(View.INVISIBLE);
+            mFab.setVisibility(View.VISIBLE);
         }
     }
 
