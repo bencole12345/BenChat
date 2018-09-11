@@ -49,6 +49,7 @@ public class ConversationActivity extends AppCompatActivity {
     private TextView mMessageContent;
     private Button mSendMessageButton;
     private ProgressBar mProgressSpinner;
+    private TextView mNoMessagesMessage;
 
     /**
      * Adapter for the RecyclerView
@@ -91,6 +92,7 @@ public class ConversationActivity extends AppCompatActivity {
         mMessageContent = findViewById(R.id.messageContent);
         mSendMessageButton = findViewById(R.id.sendButton);
         mProgressSpinner = findViewById(R.id.loadingMessagesProgressSpinner);
+        mNoMessagesMessage = findViewById(R.id.noMessagesMessage);
 
         // Disable the send message button if the text field is empty to prevent sending empty
         // messages
@@ -169,9 +171,9 @@ public class ConversationActivity extends AppCompatActivity {
      */
     private void refreshMessages() {
         mMessages.clear();
-        // TODO: mAdapter.notifyDataSetChanged() ?
         mDownloadingMessages = true;
         updateSpinner();
+        mNoMessagesMessage.setVisibility(View.INVISIBLE);
         new MessagesDownloadTask().execute();
     }
 
@@ -286,6 +288,11 @@ public class ConversationActivity extends AppCompatActivity {
             mAdapter.notifyDataSetChanged();
             mDownloadingMessages = false;
             updateSpinner();
+            if (messages.isEmpty()) {
+                mNoMessagesMessage.setVisibility(View.VISIBLE);
+            } else {
+                mNoMessagesMessage.setVisibility(View.INVISIBLE);
+            }
         }
     }
 

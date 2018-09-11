@@ -43,4 +43,5 @@
     <string name="no_messages_add_a_friend_to_get_chatting">No conversations! Add a friend to get chatting.</string>
     <string name="no_friends_message">No friends! Add your first friend using the button below.</string>
     <string name="no_friend_requests_message">No friend requests! Send one using the button below.</string>
+    <string name="no_messages">No messages!</string>
 </resources>
