@@ -1,6 +1,7 @@
 package pw.bencole.benchat.ui.fragments;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -46,6 +47,14 @@ public class FriendsFragment extends Fragment {
     private ConfirmedFriendsFragment mConfirmedFriendsFragment;
     private FriendRequestsFragment mPendingFriendsFragment;
 
+    /**
+     * Ensures that the containing Activity has an updateConversations method
+     */
+    public interface FriendsFragmentListener {
+        void updateConversations();
+    }
+    private FriendsFragmentListener mListener;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friends, container, false);
@@ -85,6 +94,22 @@ public class FriendsFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof FriendsFragmentListener) {
+            mListener =  (FriendsFragmentListener) context;
+        } else {
+            throw new ClassCastException(context.toString() + " must implement FriendsFragmentListener.");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 
     /**
@@ -132,6 +157,7 @@ public class FriendsFragment extends Fragment {
         switch (failureReason) {
             case NONE:
                 refresh();
+                mListener.updateConversations();
                 break;
             case FRIEND_REQUEST_ALREADY_EXISTS:
                 Toast.makeText(getContext(), "There is already a friend request with this person.", Toast.LENGTH_SHORT).show();

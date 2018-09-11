@@ -32,7 +32,8 @@ import pw.bencole.benchat.util.LoginManager;
  */
 public class MainActivity extends AppCompatActivity
         implements ConversationsOverviewFragment.OnConversationSelectedListener,
-                   BottomNavigationView.OnNavigationItemSelectedListener {
+                   BottomNavigationView.OnNavigationItemSelectedListener,
+                   FriendsFragment.FriendsFragmentListener{
 
     /**
      * References to UI elements
@@ -169,6 +170,16 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_friends:
                 mFriendsFragment.refresh();
         }
+    }
+
+    /**
+     * Updates only the list of conversations.
+     *
+     * This is invoked when a new friend is added, as adding a new friend causes a conversation
+     * with that user to be automatically created.
+     */
+    public void updateConversations() {
+        mConversationsOverviewFragment.refresh();
     }
 
     /**
