@@ -1,6 +1,7 @@
 package pw.bencole.benchat.models;
 
 
+import java.util.LinkedList;
 import java.util.List;
 
 import pw.bencole.benchat.util.LoginManager;
@@ -70,11 +71,15 @@ public class Conversation {
     public static String getConversationName(List<User> participants) {
         LoggedInUser user = LoginManager.getInstance().getLoggedInUser();
         StringBuilder builder = new StringBuilder("");
-        for (int i = 0; i < participants.size(); i++) {
-            if (!participants.get(i).getUsername().equals(user.getUsername())) {
-                builder.append(participants.get(i).getUsername());
-                if (i != participants.size() - 1) builder.append(", ");
+        LinkedList<User> usersToInclude = new LinkedList<>();
+        for (User participant : participants) {
+            if (!participant.getUsername().equals(user.getUsername())) {
+                usersToInclude.add(participant);
             }
+        }
+        for (int i = 0; i < usersToInclude.size(); i++) {
+            builder.append(usersToInclude.get(i).getUsername());
+            if (i != usersToInclude.size() - 1 ) builder.append(", ");
         }
         return builder.toString();
     }
